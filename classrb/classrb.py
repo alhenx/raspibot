@@ -13,23 +13,25 @@ class raspiBot():
 	#########          ZONA MODIFICABLE          ##########
 	#######################################################
 
+	#Ruta del bot
+	ruta_bot="/opt/raspibot-setup/raspibot"
+
 	#TOKEN del bot
-	API_TOKEN=''
+	API_TOKEN=os.popen("cat "+ruta_bot+"/config/token_bot")
 
 	#Identificador del chat
-	ID=
-
-	#Ruta del bot
-	ruta_bot=""
+	ID=int(os.popen("cat "+ruta_bot+"/config/chat_id"))
 
 	#Ruta del ambilight
-	ruta_ambi=""
+	ruta_ambi=os.popen("find / -name 'boblight-dispmanx' 2>&1 | grep -v 'find:'")
 
 	#Ruta para el torrent
-	filetorrent=""
+	filetorrent="/opt/torrentsend/torrentsended"
 
 	#Lista de feeds para el RSS
 	listaurls.append('http://feeds.feedburner.com/linuxenandalu?format=xml')
+	istaurls.append('http://blogdesuperheroes.es/feed')
+ 	listaurls.append('http://feeds.weblogssl.com/vayatele2?format=xml')
 
 
 	#######################################################
