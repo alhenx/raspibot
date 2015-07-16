@@ -26,25 +26,23 @@ bdrss=[]
 #######################################################
 
 #TOKEN del bot
-API_TOKEN = '91624969:AAGpeA5uSr8kdr41pdZ_yJKPUux59tanprQ'
+API_TOKEN = ''
 bot = telebot.TeleBot(API_TOKEN)
 
 #Identificador del chat
-chat_id = 2011846
+chat_id =
 
 #Ruta del bot
-ruta='/home/alhen/raspiBot'
+ruta=''
 
 #Ruta del ambilight
-ruta_ambi='/home/alhen/boblight-archarm/boblight-dispmanx'
+ruta_ambi=''
 
 #Ruta para el torrent
-filetorrent = "/opt/torrentsend/torrentsended"
+filetorrent = ""
 
 #Lista de feeds para el RSS
 listaurls.append('http://feeds.feedburner.com/linuxenandalu?format=xml')
-listaurls.append('http://blogdesuperheroes.es/feed')
-listaurls.append('http://feeds.weblogssl.com/vayatele2?format=xml')
 
 
 
