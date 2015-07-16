@@ -26,24 +26,25 @@ bdrss=[]
 #######################################################
 
 #TOKEN del bot
-API_TOKEN = ''
+API_TOKEN="91624969:AAGpeA5uSr8kdr41pdZ_yJKPUux59tanprQ"
 bot = telebot.TeleBot(API_TOKEN)
 
 #Identificador del chat
-chat_id =
+ID=2011846
 
 #Ruta del bot
-ruta_bot=""
+ruta_bot="/opt/raspibot-setup/raspibot"
 
 #Ruta del ambilight
-ruta_ambi=""
+ruta_ambi="/home/alhen/boblight-archarm/boblight-dispmanx"
 
 #Ruta para el torrent
-filetorrent = ""
+filetorrent="/opt/torrentsend/torrentsended"
 
 #Lista de feeds para el RSS
-listaurls.append('http://feeds.feedburner.com/linuxenandalu?format=xml')
-
+listaurls.append("http://feeds.feedburner.com/linuxenandalu?format=xml")
+listaurls.append("http://blogdesuperheroes.es/feed")
+listaurls.append("http://feeds.weblogssl.com/vayatele2?format=xml")
 
 
 #######################################################
@@ -67,69 +68,71 @@ def send_welcome(message):
 # Handle all other messages with content_type 'text' (content_types defaults to ['text'])
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
+    global ID
     text=message.text
     chat_id=message.chat.id
     key_v = False
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
 
-    if text == '/prueba':
-        bot.send_message(chat_id, text="Funsiono y tu id es: "+str(chat_id))
-    elif text.startswith('/rss'):
-        if text == '/rss':
-            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-            markup.row('/rss on')
-            markup.row('/rss off')
-            markup.row('/rss status')
-            markup.row('/cancel')
-            key_v = True
-        else:
-            modificar_rss(text[5:])
-    elif text.startswith('/google'):
-        if(len(text)==7):
-            bot.send_message(chat_id, text="Existen dos sintaxis correctas, la primera tiene 5 resultados por defecto:\n"+
-            "/google [busqueda]\n"+
-            "/google -[num de resultados(1-8)] [busqueda]")
-        else:
-           funcion_google(text[7:])
-    elif text.startswith('/img'):
-        if(len(text)==4):
-            bot.send_message(chat_id, text="La sintaxis correcta es:\n"+
-            "/img [busqueda]")
-        else:
-            funcion_img(text[4:])
-    elif text.startswith('/wiki'):
-        if(len(text)==5):
-            bot.send_message(chat_id, text="La sintaxis correcta es:\n"+
-            "/wiki [busqueda]")
-        else:
-           funcion_wiki(text[6:])
-    elif text.startswith('/ambilight'):
-        if text == '/ambilight':
-            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-            markup.row('/ambilight on')
-            markup.row('/ambilight off')
-            markup.row('/ambilight status')
-            markup.row('/cancel')
-            key_v = True
-        else:
-            modificar_ambilight(text[11:])
-    elif text.startswith('/torrent'):
-        if text == '/torrent':
-            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-            markup.row('/torrent on')
-            markup.row('/torrent off')
-            markup.row('/torrent status')
-            markup.row('/cancel')
-            key_v = True
-        else:
-            modificar_torrent(text[9:])
-    elif text == '/cancel':
-        key_v = False
-    if key_v == False:
-        markup.row('/ambilight')
-        markup.row('/rss')
-        markup.row('/torrent')
-    bot.send_message(chat_id, 'Seleccione un comando', reply_markup=markup)
+    if text == '/chatid':
+        bot.send_message(chat_id, text="Su ID es: "+str(chat_id))
+    if ID == chat_id:
+        if text.startswith('/rss'):
+            if text == '/rss':
+                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+                markup.row('/rss on')
+                markup.row('/rss off')
+                markup.row('/rss status')
+                markup.row('/cancel')
+                key_v = True
+            else:
+                modificar_rss(text[5:])
+        elif text.startswith('/google'):
+            if(len(text)==7):
+                bot.send_message(chat_id, text="Existen dos sintaxis correctas, la primera tiene 5 resultados por defecto:\n"+
+                "/google [busqueda]\n"+
+                "/google -[num de resultados(1-8)] [busqueda]")
+            else:
+               funcion_google(text[7:])
+        elif text.startswith('/img'):
+            if(len(text)==4):
+                bot.send_message(chat_id, text="La sintaxis correcta es:\n"+
+                "/img [busqueda]")
+            else:
+                funcion_img(text[4:])
+        elif text.startswith('/wiki'):
+            if(len(text)==5):
+                bot.send_message(chat_id, text="La sintaxis correcta es:\n"+
+                "/wiki [busqueda]")
+            else:
+               funcion_wiki(text[6:])
+        elif text.startswith('/ambilight'):
+            if text == '/ambilight':
+                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+                markup.row('/ambilight on')
+                markup.row('/ambilight off')
+                markup.row('/ambilight status')
+                markup.row('/cancel')
+                key_v = True
+            else:
+                modificar_ambilight(text[11:])
+        elif text.startswith('/torrent'):
+            if text == '/torrent':
+                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+                markup.row('/torrent on')
+                markup.row('/torrent off')
+                markup.row('/torrent status')
+                markup.row('/cancel')
+                key_v = True
+            else:
+                modificar_torrent(text[9:])
+        elif text == '/cancel':
+            key_v = False
+        if key_v == False:
+            markup.row('/ambilight')
+            markup.row('/rss')
+            markup.row('/torrent')
+        bot.send_message(chat_id, 'Seleccione un comando', reply_markup=markup)
 
 #######################################################
 
@@ -143,17 +146,17 @@ def modificar_torrent(text):
         torrent_v = True
         cmd = '> '+ruta_bot+'/lock/torrent'
         os.system(cmd)
-        bot.send_message(chat_id, text="Aviso de torrent activado")
+        bot.send_message(ID, text="Aviso de torrent activado")
     if text == 'off':
         torrent_v = False
         cmd = 'rm '+ruta_bot+'/lock/torrent'
         os.system(cmd)
-        bot.send_message(chat_id, text="Aviso de torrent desactivado")
+        bot.send_message(ID, text="Aviso de torrent desactivado")
     if text == 'status':
         if torrent_v == True:
-            bot.send_message(chat_id, text="El aviso de torrent esta activado")
+            bot.send_message(ID, text="El aviso de torrent esta activado")
         else:
-            bot.send_message(chat_id, text="El aviso de torrent esta desactivado")
+            bot.send_message(ID, text="El aviso de torrent esta desactivado")
 
 def modificar_ambilight(text):
     global ambi_v,ruta_bot
@@ -163,7 +166,7 @@ def modificar_ambilight(text):
         os.system(cmd)
         cmd = ruta_ambi+' -o saturation=2.0 -p 100 -f /dev/null > /dev/null'
         os.system(cmd)
-        bot.send_message(chat_id, text="Ambilight activado")
+        bot.send_message(ID, text="Ambilight activado")
     if text == 'off':
         ambi_v = False
         cmd = 'rm '+ruta_bot+'/lock/ambilight'
@@ -171,12 +174,12 @@ def modificar_ambilight(text):
         pid = os.popen('pidof boblight-dispmanx').read()
         cmd ='kill -9 '+pid
         os.system(cmd)
-        bot.send_message(chat_id, text="Ambilight desactivado")
+        bot.send_message(ID, text="Ambilight desactivado")
     if text == 'status':
         if ambi_v == True:
-            bot.send_message(chat_id, text="Ambilight esta activado")
+            bot.send_message(ID, text="Ambilight esta activado")
         else:
-            bot.send_message(chat_id, text="Ambilight esta desactivado")
+            bot.send_message(ID, text="Ambilight esta desactivado")
 
 def modificar_rss(text):
     global rss_v,ruta_bot
@@ -184,17 +187,17 @@ def modificar_rss(text):
         rss_v = True
         cmd = '> '+ruta_bot+'/lock/rss'
         os.system(cmd)
-        bot.send_message(chat_id, text="RSS activado")
+        bot.send_message(ID, text="RSS activado")
     if text == 'off':
         rss_v = False
         cmd = 'rm '+ruta_bot+'/lock/rss'
         os.system(cmd)
-        bot.send_message(chat_id, text="RSS desactivado")
+        bot.send_message(ID, text="RSS desactivado")
     if text == 'status':
         if rss_v == True:
-            bot.send_message(chat_id, text="RSS esta activado")
+            bot.send_message(ID, text="RSS esta activado")
         else:
-            bot.send_message(chat_id, text="RSS esta desactivado")
+            bot.send_message(ID, text="RSS esta desactivado")
 
 def funcion_rss():
     global listarss
@@ -204,7 +207,7 @@ def funcion_rss():
         listarss.append(feedparser.parse(listaurls[i]))
     for i in range(0,len(listarss)):
         if listarss[i].entries[0].title not in bdrss:
-            bot.send_message(chat_id, text="Noticia nueva:\n"+ listarss[i].entries[0].title + ": \n"+ listarss[i].entries[0].link + "\n")
+            bot.send_message(ID, text="Noticia nueva:\n"+ listarss[i].entries[0].title + ": \n"+ listarss[i].entries[0].link + "\n")
             bdrss.append(listarss[i].entries[0].title)
 
 
@@ -223,7 +226,7 @@ def funcion_google(text):
         data = results[ 'responseData' ]
         hits = data['results']
         for h in hits: lista+=(h['url']+'\n')
-        bot.send_message(chat_id, text=lista)
+        bot.send_message(ID, text=lista)
 
 def funcion_img(text):
     global ruta_bot
@@ -241,12 +244,12 @@ def funcion_img(text):
     f.write(urllib.urlopen(random.choice(lista)).read())
     f.close()
     img = open(ruta_bot+'/img/image.jpg', 'rb')
-    bot.send_photo(chat_id, img)
+    bot.send_photo(ID, img)
     img.close()
 
 def funcion_wiki(text):
     wikipedia.set_lang("es")
-    bot.send_message(chat_id, text=wikipedia.page(text).url)
+    bot.send_message(ID, text=wikipedia.page(text).url)
 
 #######################################################
 
@@ -302,9 +305,9 @@ def check_file():
   if isfile(filetorrent):
     wcout = count_filelines(filetorrent)
     if wcout > 1:
-      bot.send_message(chat_id, text="Torrents completados:\n"+cat_file(filetorrent))
+      bot.send_message(ID, text="Torrents completados:\n"+cat_file(filetorrent))
     else :
-      bot.send_message(chat_id, text="Torrents completado:\n"+cat_file(filetorrent))
+      bot.send_message(ID, text="Torrents completado:\n"+cat_file(filetorrent))
     newwcout = count_filelines(filetorrent)
     if wcout < newwcout :
     #Si se han añadido más lineas desde la ultima vez
