@@ -24,7 +24,7 @@ class raspiBot():
 	ID=int(os.popen("cat "+ruta_bot+"/config/chat_id").read())
 
 	#Ruta del ambilight
-	ruta_ambi=str("cat "+ruta_bot+"/config/ambi_path").read())
+	ruta_ambi=str(os.popen("cat "+ruta_bot+"/config/ambi_path").read())
 	#Ruta para el torrent
 	filetorrent="/opt/torrentsend/torrentsended"
 
