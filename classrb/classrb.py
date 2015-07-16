@@ -31,7 +31,7 @@ class raspiBot():
 
 	#Lista de feeds para el RSS
 	listaurls.append('http://feeds.feedburner.com/linuxenandalu?format=xml')
-	istaurls.append('http://blogdesuperheroes.es/feed')
+	listaurls.append('http://blogdesuperheroes.es/feed')
  	listaurls.append('http://feeds.weblogssl.com/vayatele2?format=xml')
 
 
