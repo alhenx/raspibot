@@ -18,13 +18,13 @@ class raspiBot():
 	ruta_bot="/opt/raspibot-setup/raspibot"
 
 	#TOKEN del bot
-	API_TOKEN=os.popen("cat "+ruta_bot+"/config/token_bot")
+	API_TOKEN=os.popen("cat "+ruta_bot+"/config/token_bot").read()
 
 	#Identificador del chat
-	ID=int(os.popen("cat "+ruta_bot+"/config/chat_id"))
+	ID=int(os.popen("cat "+ruta_bot+"/config/chat_id").read())
 
 	#Ruta del ambilight
-	ruta_ambi=os.popen("find / -name 'boblight-dispmanx' 2>&1 | grep -v 'find:'")
+	ruta_ambi=os.popen("find / -name 'boblight-dispmanx' 2>&1 | grep -v 'find:'").read()
 
 	#Ruta para el torrent
 	filetorrent="/opt/torrentsend/torrentsended"
