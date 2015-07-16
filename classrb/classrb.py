@@ -24,8 +24,7 @@ class raspiBot():
 	ID=int(os.popen("cat "+ruta_bot+"/config/chat_id").read())
 
 	#Ruta del ambilight
-	ruta_ambi=str(os.popen("find / -name 'boblight-dispmanx' 2>&1 | grep -v 'find:'").read())
-
+	ruta_ambi=str("cat "+ruta_bot+"/config/ambi_path").read())
 	#Ruta para el torrent
 	filetorrent="/opt/torrentsend/torrentsended"
 
