@@ -14,22 +14,24 @@ class raspiBot():
 	#######################################################
 
 	#TOKEN del bot
-	API_TOKEN=''
+	API_TOKEN='91624969:AAGpeA5uSr8kdr41pdZ_yJKPUux59tanprQ'
 
 	#Identificador del chat
-	ID=
+	ID=2011846
 
 	#Ruta del bot
-	ruta_bot=''
+	ruta_bot='/opt/raspibot-setup/raspibot'
 
 	#Ruta del ambilight
-	ruta_ambi=''
+	ruta_ambi='/home/alhen/boblight-archarm/boblight-dispmanx'
 
 	#Ruta para el torrent
-	filetorrent=''
+	filetorrent='/opt/torrentsend/torrentsended'
 
 	#Lista de feeds para el RSS
-	listaurls.append('')
+	listaurls.append('http://feeds.feedburner.com/linuxenandalu?format=xml')
+	listaurls.append('http://blogdesuperheroes.es/feed')
+	listaurls.append('http://feeds.weblogssl.com/vayatele2?format=xml')
 
 
 
