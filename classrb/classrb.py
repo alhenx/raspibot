@@ -20,10 +20,10 @@ class raspiBot():
 	ID=
 
 	#Ruta del bot
-	ruta_bot='/opt/raspibot-setup/raspibot'
+	ruta_bot=""
 
 	#Ruta del ambilight
-	ruta_ambi=''
+	ruta_ambi=""
 
 	#Ruta para el torrent
 	filetorrent='/opt/torrentsend/torrentsended'
