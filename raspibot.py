@@ -105,10 +105,11 @@ bot.polling()
 while True:
     time.sleep(1)
     if rb.torrent_v == True:
-        mens=check_file(rb.filetorrent)
-        if mens: bot.send_message(rb.ID, text=mens)
+        mens_t=check_file(rb.filetorrent)
+        if mens_t: bot.send_message(rb.ID, text=mens_t)
     if rb.rss_v == True and rb.cont == 60:
-        funcion_rss(rb)
+        mens_rss=funcion_rss(rb)
+        if mens_rss: bot.send_message(rb.ID, text=mens_rss)
         rb.cont = 0
     rb.cont += 1
     pass

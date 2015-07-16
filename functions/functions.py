@@ -74,8 +74,8 @@ def funcion_rss(rb):
         rb.listarss.append(feedparser.parse(rb.listaurls[i]))
     for i in range(0,len(rb.listarss)):
         if rb.listarss[i].entries[0].title not in rb.bdrss:
-            bot.send_message(rb.ID, text="Noticia nueva:\n"+ rb.listarss[i].entries[0].title + ": \n"+ rb.listarss[i].entries[0].link + "\n")
             rb.bdrss.append(rb.listarss[i].entries[0].title)
+            bot.send_message(rb.ID, text="Noticia nueva:\n"+ rb.listarss[i].entries[0].title + ": \n"+ rb.listarss[i].entries[0].link + "\n")
 
 
 def funcion_google(text):
