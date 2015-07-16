@@ -26,7 +26,7 @@ class raspiBot():
 	ruta_ambi=""
 
 	#Ruta para el torrent
-	filetorrent='/opt/torrentsend/torrentsended'
+	filetorrent=""
 
 	#Lista de feeds para el RSS
 	listaurls.append('http://feeds.feedburner.com/linuxenandalu?format=xml')
