@@ -31,14 +31,16 @@ def echo_message(message):
     text=message.text
     chat_id=message.chat.id
     key_v = False
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup = types.ReplyKeyboardMarkup()
 
     if text == '/chatid':
         bot.send_message(chat_id, text="Su ID es: "+str(chat_id))
+    elif text == '/check':
+        bot.send_message(chat_id, text="ALL OK")
     if rb.ID == chat_id:
         if text.startswith('/rss'):
             if text == '/rss':
-                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+                markup = types.ReplyKeyboardMarkup()
                 markup.row('/rss on')
                 markup.row('/rss off')
                 markup.row('/rss status')
@@ -70,7 +72,7 @@ def echo_message(message):
                 bot.send_message(chat_id, text=funcion_wiki(text[6:]))
         elif text.startswith('/ambilight'):
             if text == '/ambilight':
-                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+                markup = types.ReplyKeyboardMarkup()
                 markup.row('/ambilight on')
                 markup.row('/ambilight off')
                 markup.row('/ambilight status')
@@ -80,7 +82,7 @@ def echo_message(message):
                 bot.send_message(chat_id, text=modificar_ambilight(text[11:],rb))
         elif text.startswith('/torrent'):
             if text == '/torrent':
-                markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+                markup = types.ReplyKeyboardMarkup()
                 markup.row('/torrent on')
                 markup.row('/torrent off')
                 markup.row('/torrent status')
@@ -94,6 +96,7 @@ def echo_message(message):
             markup.row('/ambilight')
             markup.row('/rss')
             markup.row('/torrent')
+            markup.row('/check')
         bot.send_message(chat_id, 'Seleccione un comando', reply_markup=markup)
 
 #######################################################
