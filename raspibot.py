@@ -18,11 +18,9 @@ bot = telebot.TeleBot(rb.API_TOKEN)
 #######################################################
 
 # Handle '/start' and '/help'
-@bot.message_handler(commands=['help', 'start'])
+@bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, """\
-    Hola, soy tu asistente personal
-    """)
+    bot.reply_to(message,"Hola, soy tu asistente personal")
 
 
 # Handle all other messages with content_type 'text' (content_types defaults to ['text'])
@@ -89,7 +87,11 @@ def echo_message(message):
                 response = modificar_torrent(text[9:],rb)
         elif text == '/cancel':
             key_v = False
+        elif text == '/help':
+            response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"
         sendWithKeyboard(response,markup,key_v)
+    else:
+        response = "Comando no encontrado, use /help para informacion"
 
 
 def sendWithKeyboard(response,markup=False,key=False):
@@ -113,10 +115,10 @@ while True:
     time.sleep(1)
     if rb.torrent_v == True:
         mens_t=check_file(rb.filetorrent)
-        if mens_t: sendWithKeyboard(response)
+        if mens_t: sendWithKeyboard(mens_t)
     if rb.rss_v == True and rb.cont == 60:
         mens_rss=funcion_rss(rb)
-        if mens_rss: sendWithKeyboard(response)
+        if mens_rss: sendWithKeyboard(mens_rss)
         rb.cont = 0
     rb.cont += 1
     pass
