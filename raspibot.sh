@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python2 /home/alhen/raspibot/raspibot.py
+python2 /opt/raspibot-setup/raspibot/raspibot.py

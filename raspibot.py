@@ -33,10 +33,10 @@ bot = telebot.TeleBot(API_TOKEN)
 chat_id =
 
 #Ruta del bot
-ruta=''
+ruta_bot=""
 
 #Ruta del ambilight
-ruta_ambi=''
+ruta_ambi=""
 
 #Ruta para el torrent
 filetorrent = ""
@@ -138,15 +138,15 @@ def echo_message(message):
 #######################################################
 
 def modificar_torrent(text):
-    global torrent_v,ruta
+    global torrent_v,ruta_bot
     if text == 'on':
         torrent_v = True
-        cmd = '> '+ruta+'/lock/torrent'
+        cmd = '> '+ruta_bot+'/lock/torrent'
         os.system(cmd)
         bot.send_message(chat_id, text="Aviso de torrent activado")
     if text == 'off':
         torrent_v = False
-        cmd = 'rm '+ruta+'/lock/torrent'
+        cmd = 'rm '+ruta_bot+'/lock/torrent'
         os.system(cmd)
         bot.send_message(chat_id, text="Aviso de torrent desactivado")
     if text == 'status':
@@ -156,17 +156,17 @@ def modificar_torrent(text):
             bot.send_message(chat_id, text="El aviso de torrent esta desactivado")
 
 def modificar_ambilight(text):
-    global ambi_v,ruta
+    global ambi_v,ruta_bot
     if text == 'on':
         ambi_v = True
-        cmd = '> '+ruta+'/lock/ambilight'
+        cmd = '> '+ruta_bot+'/lock/ambilight'
         os.system(cmd)
         cmd = ruta_ambi+' -o saturation=2.0 -p 100 -f /dev/null > /dev/null'
         os.system(cmd)
         bot.send_message(chat_id, text="Ambilight activado")
     if text == 'off':
         ambi_v = False
-        cmd = 'rm '+ruta+'/lock/ambilight'
+        cmd = 'rm '+ruta_bot+'/lock/ambilight'
         os.system(cmd)
         pid = os.popen('pidof boblight-dispmanx').read()
         cmd ='kill -9 '+pid
@@ -179,15 +179,15 @@ def modificar_ambilight(text):
             bot.send_message(chat_id, text="Ambilight esta desactivado")
 
 def modificar_rss(text):
-    global rss_v,ruta
+    global rss_v,ruta_bot
     if text == 'on':
         rss_v = True
-        cmd = '> '+ruta+'/lock/rss'
+        cmd = '> '+ruta_bot+'/lock/rss'
         os.system(cmd)
         bot.send_message(chat_id, text="RSS activado")
     if text == 'off':
         rss_v = False
-        cmd = 'rm '+ruta+'/lock/rss'
+        cmd = 'rm '+ruta_bot+'/lock/rss'
         os.system(cmd)
         bot.send_message(chat_id, text="RSS desactivado")
     if text == 'status':
@@ -226,7 +226,7 @@ def funcion_google(text):
         bot.send_message(chat_id, text=lista)
 
 def funcion_img(text):
-    global ruta
+    global ruta_bot
     lista = []
     query = text.encode('utf-8')
     query = urllib.urlencode ( { 'q' : query } )
@@ -237,10 +237,10 @@ def funcion_img(text):
     data = results[ 'responseData' ]
     hits = data['results']
     for h in hits: lista.append(h['url'])
-    f = open(ruta+'/img/image.jpg','wb')
+    f = open(ruta_bot+'/img/image.jpg','wb')
     f.write(urllib.urlopen(random.choice(lista)).read())
     f.close()
-    img = open(ruta+'/img/image.jpg', 'rb')
+    img = open(ruta_bot+'/img/image.jpg', 'rb')
     bot.send_photo(chat_id, img)
     img.close()
 
@@ -255,8 +255,8 @@ def funcion_wiki(text):
 #######################################################
 
 def lock_torrent():
-    global torrent_v,ruta
-    file = ruta+"/lock/torrent"
+    global torrent_v,ruta_bot
+    file = ruta_bot+"/lock/torrent"
     fileexists = os.path.isfile(file)
     if fileexists:
         torrent_v = True
@@ -264,8 +264,8 @@ def lock_torrent():
         torrent_v = False
 
 def lock_rss():
-    global rss_v,ruta
-    file = ruta+"/lock/rss"
+    global rss_v,ruta_bot
+    file = ruta_bot+"/lock/rss"
     fileexists = os.path.isfile(file)
     if fileexists:
         rss_v = True
@@ -273,18 +273,18 @@ def lock_rss():
         rss_v = False
 
 def lock_ambi():
-    global ambi_v,ruta
-    file = ruta+"/lock/ambilight"
+    global ambi_v,ruta_bot
+    file = ruta_bot+"/lock/ambilight"
     fileexists = os.path.isfile(file)
     if fileexists:
         ambi_v = True
-        cmd = '> '+ruta+'/lock/ambilight'
+        cmd = '> '+ruta_bot+'/lock/ambilight'
         os.system(cmd)
         cmd = ruta_ambi+' -o saturation=2.0 -p 100 -f /dev/null > /dev/null'
         os.system(cmd)
     else:
         ambi_v = False
-        cmd = 'rm '+ruta+'/lock/ambilight'
+        cmd = 'rm '+ruta_bot+'/lock/ambilight'
         os.system(cmd)
         pid = os.popen('pidof boblight-dispmanx').read()
         cmd ='kill -9 '+pid
