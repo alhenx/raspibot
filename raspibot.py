@@ -36,13 +36,13 @@ def echo_message(message):
         response = "Su ID es: "+str(chat_id)
     elif text == '/check':
         response = "ALL OK"
-    if rb.ID == chat_id:
+    if rb.ID == chat_id and rb.rssadd == False and rb.rssdel == False:
         if text.startswith('/rss'):
             if text == '/rss':
                 markup = types.ReplyKeyboardMarkup()
-                markup.row('/rss on')
-                markup.row('/rss off')
-                markup.row('/rss status')
+                markup.row('/rss on','/rss off')
+                markup.row('/rss add', '/rss del')
+                markup.row('/rss status','/rss list')
                 markup.row('/cancel')
                 key_v = True
             else:
@@ -90,6 +90,9 @@ def echo_message(message):
         elif text == '/help':
             response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"
         sendWithKeyboard(response,markup,key_v)
+    elif rb.rssadd == True or rb.rssdel == True:
+        response = comprobar_rss(text,rb)
+        sendWithKeyboard(response)
     else:
         response = "Comando no encontrado, use /help para informacion"
 

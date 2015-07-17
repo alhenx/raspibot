@@ -62,6 +62,25 @@ def modificar_rss(text,rb):
         cmd = 'rm '+rb.ruta_tmp+'/rss'
         os.system(cmd)
         return "RSS desactivado"
+    if text == 'add':
+        rb.rssadd = True
+        return 'Introduzca el nuevo feed'
+    if text == 'del':
+        rb.rssdel = True
+        return 'Introduzca el numero que desea eliminar, si no los conoce use /rss list'
+    if text == 'list':
+        response = ''
+        c = 1
+        fpath = rb.ruta_config+'/listarss'
+        if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
+            archivo = open(rb.ruta_config+'/listarss', 'r')
+            for line in archivo.readlines():
+                response += str(c)+' '+line
+                c += 1
+            archivo.close()
+        else:
+            response = "Lista vacia"
+        return response
     if text == 'status':
         if rb.rss_v == True:
             return "RSS esta activado"
@@ -77,6 +96,44 @@ def funcion_rss(rb):
             rb.bdrss.append(rb.listarss[i].entries[0].title)
             return "Noticia nueva:\n"+ rb.listarss[i].entries[0].title + ": \n"+ rb.listarss[i].entries[0].link
 
+def comprobar_rss(text,rb):
+    if rb.rssadd == True:
+        aux = feedparser.parse(text)
+        c = False
+        fpath = rb.ruta_config+'/listarss'
+        if not os.path.isfile(fpath):
+            cmd = '> '+rb.ruta_tmp+'/listarss'
+            os.system(cmd)
+        try:
+            response = "El feed "+aux.feed.title+" ha sido introducido"
+            rb.listaurls.append(text)
+            outfile = open(rb.ruta_config+'/listarss', 'a')
+            outfile.write(text+'\n')
+            outfile.close()
+            rb.listarss.append(aux)
+            rb.bdrss.append(rb.listarss[-1].entries[0].title)
+        except:
+            response = "[Error] El feed no existe"
+        rb.rssadd = False
+    if rb.rssdel == True:
+        try:
+            f = open(rb.ruta_config+'/listarss',"r")
+            lineas = f.readlines()
+            f.close()
+            f = open(rb.ruta_config+'/listarss',"w")
+            c = 1
+            for linea in lineas:
+                cont=str(c)
+                if cont!=text:
+                    f.write(linea)
+                c += 1
+            f.close()
+            del rb.listaurls[int(text)-1]
+            response = "Feed borrado"
+        except:
+            response = "[Error] Feed inexistente"
+        rb.rssdel = False
+    return response
 
 def funcion_google(text):
     if(text[0] == '-'):

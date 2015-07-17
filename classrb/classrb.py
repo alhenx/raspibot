@@ -4,6 +4,8 @@ class raspiBot():
 
 	ambi_v = False
 	rss_v = False
+	rssadd = False
+	rssdel = False
 	torrent_v = False
 	cont = 0
 	listaurls=[]
@@ -28,13 +30,8 @@ class raspiBot():
 	#Ruta para el torrent
 	filetorrent="/opt/torrentsend/torrentsended"
 
-	#Lista de feeds para el RSS
-	listaurls.append('http://feeds.feedburner.com/linuxenandalu?format=xml')
-	listaurls.append('http://blogdesuperheroes.es/feed')
- 	listaurls.append('http://feeds.weblogssl.com/vayatele2?format=xml')
-
-
 	#######################################################
 
 	ruta_tmp=ruta_bot+'/tmp'
 	ruta_img=ruta_bot+'/img'
+	ruta_config=ruta_bot+'/config'
