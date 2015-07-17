@@ -91,7 +91,11 @@ def echo_message(message):
             response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"
         sendWithKeyboard(response,markup,key_v)
     elif rb.rssadd == True or rb.rssdel == True:
-        response = comprobar_rss(text,rb)
+        if text == '/rss list':
+            response = modificar_rss(text[5:],rb)
+            response +='\n Introduzca la opcion que desee'
+        else:
+            response = comprobar_rss(text,rb)
         sendWithKeyboard(response)
     else:
         response = "Comando no encontrado, use /help para informacion"
