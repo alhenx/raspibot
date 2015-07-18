@@ -4,7 +4,6 @@
 
 import telebot
 from telebot import types
-import cStringIO
 import time
 from lock.lock import *
 from classrb.classrb import *

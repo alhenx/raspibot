@@ -142,11 +142,11 @@ def funcion_google(text):
         num = 5
         lista = ''
         query = text.encode('utf-8')
-        query = urllib.urlencode ( { 'q' : query } )
+        query = urllib.parse.urlencode ( { 'q' : query } )
         url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&rsz=%s&%s' % (num,query)
-        search_response = urllib.urlopen(url)
+        search_response = urllib.request.urlopen(url)
         search_results = search_response.read()
-        results = json.loads(search_results)
+        results = json.loads(search_results.decode("UTF-8"))
         data = results[ 'responseData' ]
         hits = data['results']
         for h in hits: lista+=(h['url']+'\n')
@@ -155,16 +155,16 @@ def funcion_google(text):
 def funcion_img(text,ruta_img):
     lista = []
     query = text.encode('utf-8')
-    query = urllib.urlencode ( { 'q' : query } )
+    query = urllib.parse.urlencode ( { 'q' : query } )
     url = 'https://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&%s' % query
-    search_response = urllib.urlopen(url)
+    search_response = urllib.request.urlopen(url)
     search_results = search_response.read()
-    results = json.loads(search_results)
+    results = json.loads(search_results.decode("UTF-8"))
     data = results[ 'responseData' ]
     hits = data['results']
     for h in hits: lista.append(h['url'])
     f = open(ruta_img+'/image.jpg','wb')
-    f.write(urllib.urlopen(random.choice(lista)).read())
+    f.write(urllib.request.urlopen(random.choice(lista)).read())
     f.close()
 
 def funcion_wiki(text):
