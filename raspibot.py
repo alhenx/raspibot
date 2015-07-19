@@ -115,7 +115,7 @@ def sendWithKeyboard(response,markup=False,key=False):
 
 setup_ini(rb)
 
-bot.polling()
+bot.polling(True)
 
 while True:
     time.sleep(1)
