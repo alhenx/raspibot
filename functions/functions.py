@@ -31,20 +31,26 @@ def modificar_torrent(text,rb):
 
 def modificar_ambilight(text,rb):
     if text == 'on':
-        rb.ambi_v = True
-        cmd = '> '+rb.ruta_tmp+'/ambilight'
-        os.system(cmd)
-        cmd = rb.ruta_ambi+' -o saturation=2.0 -p 100 -f /dev/null > /dev/null'
-        os.system(cmd)
-        return "Ambilight activado"
+        if rb.ruta_ambi != "NOPE":
+            rb.ambi_v = True
+            cmd = '> '+rb.ruta_tmp+'/ambilight'
+            os.system(cmd)
+            cmd = rb.ruta_ambi+' -o saturation=2.0 -p 100 -f /dev/null > /dev/null'
+            os.system(cmd)
+            return "Ambilight activado"
+        else:
+            return "No dispone de sistema ambilight"
     if text == 'off':
-        rb.ambi_v = False
-        cmd = 'rm '+rb.ruta_tmp+'/ambilight'
-        os.system(cmd)
-        pid = os.popen('pidof boblight-dispmanx').read()
-        cmd ='kill -9 '+pid
-        os.system(cmd)
-        return "Ambilight desactivado"
+        if rb.ruta_ambi != "NOPE":
+            rb.ambi_v = False
+            cmd = 'rm '+rb.ruta_tmp+'/ambilight'
+            os.system(cmd)
+            pid = os.popen('pidof boblight-dispmanx').read()
+            cmd ='kill -9 '+pid
+            os.system(cmd)
+            return "Ambilight desactivado"
+        else:
+            return "No dispone de sistema ambilight"
     if text == 'status':
         if rb.ambi_v == True:
             return "Ambilight esta activado"
