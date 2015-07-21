@@ -12,6 +12,17 @@ import wikipedia
 #########        Funciones principales       ##########
 #######################################################
 
+def comprobar_version(rb):
+    url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version.txt"
+    data = urllib.request.urlopen(url)
+    data = data.read().decode("UTF-8")
+    version = open(rb.ruta_bot+'/version.txt')
+    version = version.read()
+    if str(data) != version:
+        return False
+    else:
+        return True
+
 def modificar_torrent(text,rb):
     if text == 'on':
         rb.torrent_v = True

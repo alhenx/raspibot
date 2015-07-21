@@ -86,6 +86,11 @@ def echo_message(message):
                 response = modificar_torrent(text[9:],rb)
         elif text == '/cancel':
             key_v = False
+        elif text == '/version':
+            url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version.txt"
+            data = urllib.request.urlopen(url)
+            data = data.read().decode("UTF-8")
+            response ="Current Version: "+str(data)
         elif text == '/help':
             response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"
         sendWithKeyboard(response,markup,key_v)
@@ -126,5 +131,9 @@ while True:
         mens_rss=funcion_rss(rb)
         if mens_rss: sendWithKeyboard(mens_rss)
         rb.cont = 0
+    if comprobar_version(rb) == False and rb.contv == 3600:
+        rb.contv = 0
+        sendWithKeyboard("Hay una nueva version disponible. Utilice /update para actualizar.")
     rb.cont += 1
+    rb.contv += 1
     pass
