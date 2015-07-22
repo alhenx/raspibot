@@ -87,12 +87,12 @@ def echo_message(message):
         elif text == '/cancel':
             key_v = False
         elif text == '/version':
-            url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version.txt"
+            url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version"
             data = urllib.request.urlopen(url)
             data = data.read().decode("UTF-8")
             response ="Current Version: "+str(data)
         elif text == '/help':
-            response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"
+            response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/update - Actualiza la version del Bot (Desarrollo)\n"+"/check - Comprueba el estado del bot\n"
         sendWithKeyboard(response,markup,key_v)
     elif rb.rssadd == True or rb.rssdel == True:
         if text == '/rss list':

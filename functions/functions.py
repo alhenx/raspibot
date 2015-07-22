@@ -13,7 +13,7 @@ import wikipedia
 #######################################################
 
 def comprobar_version(rb):
-    url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version.txt"
+    url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version"
     data = urllib.request.urlopen(url)
     data = data.read().decode("UTF-8")
     version = open(rb.ruta_bot+'/version.txt')
