@@ -91,8 +91,10 @@ def echo_message(message):
             data = urllib.request.urlopen(url)
             data = data.read().decode("UTF-8")
             response ="Current Version: "+str(data)
+        elif text == '/update':
+            update_bot(rb)
         elif text == '/help':
-            response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/update - Actualiza la version del Bot (Desarrollo)\n"+"/check - Comprueba el estado del bot\n"
+            response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/update - Actualiza la version del Bot (Desarrollo)\n"+"/version - Comprueba la version del bot\n"
         sendWithKeyboard(response,markup,key_v)
     elif rb.rssadd == True or rb.rssdel == True:
         if text == '/rss list':
@@ -131,9 +133,14 @@ while True:
         mens_rss=funcion_rss(rb)
         if mens_rss: sendWithKeyboard(mens_rss)
         rb.cont = 0
-    if comprobar_version(rb) == False and rb.contv == 3600:
+    if comprobar_version(rb) == False and rb.contv == 3600 and rb.updating == False:
         rb.contv = 0
         sendWithKeyboard("Hay una nueva version disponible. Utilice /update para actualizar.")
+    if comprobar_update(rb) == False and rb.contv == 3600 and rb.updating == False:
+        rb.contv = 0
+        version = open(rb.ruta_bot+'/version')
+        version = version.read()
+        sendWithKeyboard("Version actualizada ["+version+"]")
     rb.cont += 1
     rb.contv += 1
     pass

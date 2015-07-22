@@ -12,6 +12,38 @@ import wikipedia
 #########        Funciones principales       ##########
 #######################################################
 
+def comprobar_update(rb):
+    file = rb.ruta_tmp+"/update"
+    fileexists = os.path.isfile(file)
+    if fileexists:
+        cmd = 'rm '+rb.ruta_tmp+'/update'
+        os.system(cmd)
+        return True
+    else:
+        return False
+
+def update_bot(rb):
+    ruta = rb.ruta_bot.rstrip('raspibot')
+    cmd = "cd "+ruta
+    os.system(cmd)
+    cmd = 'mv '+rb.ruta_bot+' '+ruta+'raspibot-bak'
+    os.system(cmd)
+    os.system('git clone https://github.com/alhenx/raspibot.git --quiet')
+    cmd = 'cp -r '+ruta+'raspibot-bak/config '+rb.ruta_bot
+    os.system(cmd)
+    cmd = 'cp -r '+ruta+'raspibot-bak/tmp '+rb.ruta_bot
+    os.system(cmd)
+    cmd = 'cd '+rb.ruta_bot
+    os.system(cmd)
+    os.system('echo "#!/bin/bash" > raspibot.sh')
+    os.system('echo "python $installdir/raspibot/raspibot.py &" >> raspibot.sh')
+    os.system('sudo chmod a+x raspibot.sh')
+    cmd = 'rm -rf '+ruta+'raspibot-bak'
+    os.system(cmd)
+    os.system('sudo /usr/local/bin/restartraspibot.sh')
+    cmd = '> '+rb.ruta_tmp+'/update'
+    os.system(cmd)
+
 def comprobar_version(rb):
     url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version"
     data = urllib.request.urlopen(url)

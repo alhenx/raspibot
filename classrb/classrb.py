@@ -7,8 +7,9 @@ class raspiBot():
 	rssadd = False
 	rssdel = False
 	torrent_v = False
+	updating = False
 	cont = 0
-	contv = 0
+	contv = 3600
 	listaurls=[]
 	listarss=[]
 	bdrss=[]
