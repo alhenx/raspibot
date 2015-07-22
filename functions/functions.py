@@ -23,7 +23,7 @@ def comprobar_update(rb):
         return False
 
 def update_bot(rb):
-    ruta = rb.ruta_bot.rstrip('raspibot')
+    ruta = '/opt/raspibot-setup/'
     cmd = "cd "+ruta
     os.system(cmd)
     cmd = 'mv '+rb.ruta_bot+' '+ruta+'raspibot-bak'
