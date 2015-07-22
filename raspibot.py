@@ -87,7 +87,7 @@ def echo_message(message):
         elif text == '/cancel':
             key_v = False
         elif text == '/version':
-            url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version.txt"
+            url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version"
             data = urllib.request.urlopen(url)
             data = data.read().decode("UTF-8")
             response ="Current Version: "+str(data)
