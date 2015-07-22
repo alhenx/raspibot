@@ -23,22 +23,21 @@ def comprobar_update(rb):
         return False
 
 def update_bot(rb):
-    ruta = '/opt/raspibot-setup/'
-    cmd = "cd "+ruta
+    cmd = 'cd /opt/raspibot-setup'
     os.system(cmd)
-    cmd = 'mv '+rb.ruta_bot+' '+ruta+'raspibot-bak'
+    cmd = 'mv /opt/raspibot-setup/raspibot /opt/raspibot-setup/raspibot-bak'
     os.system(cmd)
     os.system('git clone https://github.com/alhenx/raspibot.git --quiet')
-    cmd = 'cp -r '+ruta+'raspibot-bak/config '+rb.ruta_bot
+    cmd = 'cp -r /opt/raspibot-setup/raspibot-bak/config /opt/raspibot-setup/raspibot'
     os.system(cmd)
-    cmd = 'cp -r '+ruta+'raspibot-bak/tmp '+rb.ruta_bot
+    cmd = 'cp -r /opt/raspibot-setup/raspibot-bak/tmp /opt/raspibot-setup/raspibot'
     os.system(cmd)
-    cmd = 'cd '+rb.ruta_bot
+    cmd = 'cd /opt/raspibot-setup/raspibot'
     os.system(cmd)
     os.system('echo "#!/bin/bash" > raspibot.sh')
-    os.system('echo "python $installdir/raspibot/raspibot.py &" >> raspibot.sh')
+    os.system('echo "python /opt/raspibot-setup/raspibot/raspibot.py &" >> raspibot.sh')
     os.system('sudo chmod a+x raspibot.sh')
-    cmd = 'rm -rf '+ruta+'raspibot-bak'
+    cmd = 'rm -rf /opt/raspibot-setup/raspibot-bak'
     os.system(cmd)
     os.system('sudo /usr/local/bin/restartraspibot.sh')
     cmd = '> '+rb.ruta_tmp+'/update'

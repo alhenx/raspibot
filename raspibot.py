@@ -136,7 +136,7 @@ while True:
     if comprobar_version(rb) == False and rb.contv == 3600 and rb.updating == False:
         rb.contv = 0
         sendWithKeyboard("Hay una nueva version disponible. Utilice /update para actualizar.")
-    if comprobar_update(rb) == False and rb.contv == 3600 and rb.updating == False:
+    if comprobar_update(rb) == True and rb.contv == 3600 and rb.updating == False:
         rb.contv = 0
         version = open(rb.ruta_bot+'/version')
         version = version.read()
