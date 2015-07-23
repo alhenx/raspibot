@@ -13,3 +13,10 @@ To install RaspiBot, you only need to execute our setup Bash script:
 $ bash <(curl -sL git.io/raspibotsetup)
 ```
 
+### Update
+To update RaspiBot, you only need to execute our setup Bash script:
+
+```sh
+$ bash <(curl -sL git.io/raspibotupdate)
+```
+

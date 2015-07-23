@@ -163,22 +163,29 @@ do
 			;;
 			### END CASE 1
 			2)
-				echo "Actualizando RaspiBot..."
-				cd $installdir
-				mv $botpath $botpath_bak
-				git clone https://github.com/alhenx/raspibot.git --quiet
-				echo "Configurando RaspiBot..."
-				cp -r $botpath_bak/config $botpath
-				cp -r $botpath_bak/tmp $botpath
-				cd $botpath
-				echo "#!/bin/bash" > $execfile
-				echo "python $installdir/raspibot/raspibot.py &" >> $execfile
-				sudo chmod a+x $execfile
-				touch $botpath/tmp/update
-				echo "Eliminando versiones anteriores..."
-				rm -rf $botpath_bak
-				sudo systemctl restart raspibot.service
-				echo "Actualización completada."
+				echo "Comprobando actualizaciones..."
+				localversion=$(echo $botpath/version)
+				remoteversion=$(curl -s https://raw.githubusercontent.com/alhenx/raspibot/master/version)
+				if [ $localversion != $remoteversion ]; then
+					echo "Existe una nueva versión de RaspiBot. Actualizando..."
+					cd $installdir
+					mv $botpath $botpath_bak
+					git clone https://github.com/alhenx/raspibot.git --quiet
+					echo "Configurando RaspiBot..."
+					cp -r $botpath_bak/config $botpath
+					cp -r $botpath_bak/tmp $botpath
+					cd $botpath
+					echo "#!/bin/bash" > $execfile
+					echo "python $installdir/raspibot/raspibot.py &" >> $execfile
+					sudo chmod a+x $execfile
+					touch $botpath/tmp/update
+					echo "Eliminando versiones anteriores..."
+					rm -rf $botpath_bak
+					sudo systemctl restart raspibot.service
+					echo "Actualización completada."
+				else
+					echo "No hay actualizaciones disponibles para RaspiBot."
+				fi
 				keepon=false
 			;;
 			### END CASE 2
