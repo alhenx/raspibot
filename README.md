@@ -10,6 +10,6 @@ Olders: 0.1 "Alpha"
 To install RaspiBot, you only need to execute our setup Bash script:
 
 ```sh
-$ bash <(curl -s https://dl.dropboxusercontent.com/s/376f1svjt27bhos/setup.sh)
+$ bash <(curl -sL git.io/raspibotsetup)
 ```
 
