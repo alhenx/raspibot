@@ -22,27 +22,6 @@ def comprobar_update(rb):
     else:
         return False
 
-def update_bot(rb):
-    cmd = 'cd /opt/raspibot-setup'
-    os.system(cmd)
-    cmd = 'mv /opt/raspibot-setup/raspibot /opt/raspibot-setup/raspibot-bak'
-    os.system(cmd)
-    os.system('git clone https://github.com/alhenx/raspibot.git --quiet')
-    cmd = 'cp -r /opt/raspibot-setup/raspibot-bak/config /opt/raspibot-setup/raspibot'
-    os.system(cmd)
-    cmd = 'cp -r /opt/raspibot-setup/raspibot-bak/tmp /opt/raspibot-setup/raspibot'
-    os.system(cmd)
-    cmd = 'cd /opt/raspibot-setup/raspibot'
-    os.system(cmd)
-    os.system('echo "#!/bin/bash" > raspibot.sh')
-    os.system('echo "python /opt/raspibot-setup/raspibot/raspibot.py &" >> raspibot.sh')
-    os.system('sudo chmod a+x raspibot.sh')
-    cmd = 'rm -rf /opt/raspibot-setup/raspibot-bak'
-    os.system(cmd)
-    os.system('sudo /usr/local/bin/restartraspibot.sh')
-    cmd = '> '+rb.ruta_tmp+'/update'
-    os.system(cmd)
-
 def comprobar_version(rb):
     url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version"
     data = urllib.request.urlopen(url)
