@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ "$1" != "" ]; then
+
+	case $1 in
+		"update")
+			echo 2 | bash <(curl -sL git.io/raspibotsetup)
+		;;
+		"status")
+			/usr/bin/systemctl status raspibot.service
+		;;
+		*)
+			echo "Opción inválida.Uso:"
+			echo -e "\t update - Actualizar el bot."
+			echo -e "\t status - Muestra el estado del bot."
+		;;
+	esac
+else
+	echo "Debe introducir una acción."
+fi

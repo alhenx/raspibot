@@ -127,15 +127,17 @@ do
 					echo "Se añadirá este servicio a la lista de alertas de RaspiBot."
 
 					sudo sed -i 's^"script-torrent-done-enabled": false,^"script-torrent-done-enabled": true,^g' $torrentsettings
-	    		sudo sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$torrentalertscript"'",^g' $torrentsettings
+	    				sudo sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$torrentalertscript"'",^g' $torrentsettings
 
-	    		echo -e '#!/bin/bash' | sudo tee $torrentalertscript >/dev/null
-	    		echo -e 'torrentsalertfile="'"$torrentsfile"'"' | sudo tee --append $torrentalertscript >/dev/null
-	    		echo -e 'echo $TR_TORRENT_NAME > $torrentsalertfile' | sudo tee --append $torrentalertscript >/dev/null
-	    		echo -e "exit 0" | sudo tee --append $torrentalertscript >/dev/null
+	    				echo -e '#!/bin/bash' | sudo tee $torrentalertscript >/dev/null
+	    				echo -e 'torrentsalertfile="'"$torrentsfile"'"' | sudo tee --append $torrentalertscript >/dev/null
+	    				echo -e 'echo $TR_TORRENT_NAME > $torrentsalertfile' | sudo tee --append $torrentalertscript >/dev/null
+	    				echo -e "exit 0" | sudo tee --append $torrentalertscript >/dev/null
 
-	    		sudo chmod a+x $torrentalertscript
+	    				sudo chmod a+x $torrentalertscript
 				fi
+
+				sudo ln -s $botpath/bin/raspibot /bin/raspibot
 
 				echo "[Unit]" > $service
 				echo "Description=RaspiBot for Telegram" >> $service
@@ -196,6 +198,7 @@ do
 				sudo systemctl stop raspibot >/dev/null 2>&1
 				sudo systemctl disable raspibot >/dev/null 2>&1
 				sudo rm /usr/lib/systemd/system/raspibot.service >/dev/null 2>&1
+				sudo rm -f /bin/raspibot >/dev/null 2>&1
 				echo "Desinstalación completada."
 				keepon=false
 			;;
