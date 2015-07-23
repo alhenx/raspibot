@@ -164,7 +164,7 @@ do
 			### END CASE 1
 			2)
 				echo "Comprobando actualizaciones..."
-				localversion=$(echo $botpath/version)
+				localversion=$(cat $botpath/version)
 				remoteversion=$(curl -s https://raw.githubusercontent.com/alhenx/raspibot/master/version)
 				if [ "$localversion" != "$remoteversion" ]; then
 					echo "Existe una nueva versión de RaspiBot. Actualizando..."
