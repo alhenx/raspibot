@@ -33,8 +33,6 @@ def echo_message(message):
 
     if text == '/chatid':
         response = "Su ID es: "+str(chat_id)
-    elif text == '/check':
-        response = "ALL OK"
     if rb.ID == chat_id and rb.rssadd == False and rb.rssdel == False:
         if text.startswith('/rss'):
             if text == '/rss':
@@ -93,8 +91,6 @@ def echo_message(message):
             response ="Current Version: "+str(data)
         elif text == '/help':
             response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/version - Comprueba la version del bot\n"
-        else:
-            response = "Comando no encontrado, use /help para informacion"
         sendWithKeyboard(response,markup,key_v)
     elif rb.rssadd == True or rb.rssdel == True:
         if text == '/rss list':
@@ -103,6 +99,8 @@ def echo_message(message):
         else:
             response = comprobar_rss(text,rb)
         sendWithKeyboard(response)
+    else:
+            response = "Comando no encontrado, use /help para informacion"
 
 
 def sendWithKeyboard(response,markup=False,key=False):
@@ -112,7 +110,7 @@ def sendWithKeyboard(response,markup=False,key=False):
         markup.row('/ambilight')
         markup.row('/rss')
         markup.row('/torrent')
-        markup.row('/check')
+        markup.row('/version')
     bot.send_message(rb.ID, text=response, reply_markup=markup)
 
 
