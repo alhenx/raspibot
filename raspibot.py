@@ -91,10 +91,10 @@ def echo_message(message):
             data = urllib.request.urlopen(url)
             data = data.read().decode("UTF-8")
             response ="Current Version: "+str(data)
-        elif text == '/update':
-            update_bot(rb)
         elif text == '/help':
-            response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/update - Actualiza la version del Bot (Desarrollo)\n"+"/version - Comprueba la version del bot\n"
+            response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/version - Comprueba la version del bot\n"
+        else:
+            response = "Comando no encontrado, use /help para informacion"
         sendWithKeyboard(response,markup,key_v)
     elif rb.rssadd == True or rb.rssdel == True:
         if text == '/rss list':
@@ -103,8 +103,6 @@ def echo_message(message):
         else:
             response = comprobar_rss(text,rb)
         sendWithKeyboard(response)
-    else:
-        response = "Comando no encontrado, use /help para informacion"
 
 
 def sendWithKeyboard(response,markup=False,key=False):
@@ -121,7 +119,12 @@ def sendWithKeyboard(response,markup=False,key=False):
 #######################################################
 
 setup_ini(rb)
-
+if comprobar_update(rb) == True:
+    version = open(rb.ruta_bot+'/version')
+    version = version.read()
+    sendWithKeyboard('Version actualizada ['+version+']')
+if comprobar_version(rb) == False:
+    sendWithKeyboard('Hay una nueva version disponible. Utilice "bash <(curl -sL git.io/raspibotupdate)" en su terminal.')
 bot.polling(True)
 
 while True:
@@ -133,14 +136,9 @@ while True:
         mens_rss=funcion_rss(rb)
         if mens_rss: sendWithKeyboard(mens_rss)
         rb.cont = 0
-    if comprobar_version(rb) == False and rb.contv == 3600 and rb.updating == False:
+    if comprobar_version(rb) == False and rb.contv == 3600:
         rb.contv = 0
-        sendWithKeyboard("Hay una nueva version disponible. Utilice /update para actualizar.")
-    if comprobar_update(rb) == True and rb.contv == 3600 and rb.updating == False:
-        rb.contv = 0
-        version = open(rb.ruta_bot+'/version')
-        version = version.read()
-        sendWithKeyboard("Version actualizada ["+version+"]")
+        sendWithKeyboard('Hay una nueva version disponible. Utilice "bash <(curl -sL git.io/raspibotupdate)" en su terminal.')
     rb.cont += 1
     rb.contv += 1
     pass
