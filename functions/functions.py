@@ -56,7 +56,7 @@ def modificar_ambilight(text,rb):
             rb.ambi_v = True
             cmd = '> '+rb.ruta_tmp+'/ambilight'
             os.system(cmd)
-            cmd = rb.ruta_ambi+' -o saturation=2.0 -p 100 -f /dev/null > /dev/null'
+            cmd = rb.ruta_ambi+' -p 100 -f /dev/null > /dev/null'
             os.system(cmd)
             return "Ambilight activado"
         else:
