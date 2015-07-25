@@ -34,24 +34,24 @@ def comprobar_version(rb):
         return True
 
 def modificar_torrent(text,rb):
-    if text == 'on':
+    if text == 'ALERT ON':
         rb.torrent_v = True
         cmd = '> '+rb.ruta_tmp+'/torrent'
         os.system(cmd)
         return "Aviso de torrent activado"
-    if text == 'off':
+    if text == 'ALERT OFF':
         rb.torrent_v = False
         cmd = 'rm '+rb.ruta_tmp+'/torrent'
         os.system(cmd)
         return "Aviso de torrent desactivado"
-    if text == 'status':
+    if text == 'ALERT STATUS':
         if rb.torrent_v == True:
             return "El aviso de torrent esta activado"
         else:
             return "El aviso de torrent esta desactivado"
 
 def modificar_ambilight(text,rb):
-    if text == 'on':
+    if text == 'ON':
         if rb.ruta_ambi != "NOPE":
             rb.ambi_v = True
             cmd = '> '+rb.ruta_tmp+'/ambilight'
@@ -61,7 +61,7 @@ def modificar_ambilight(text,rb):
             return "Ambilight activado"
         else:
             return "No dispone de sistema ambilight"
-    if text == 'off':
+    if text == 'OFF':
         if rb.ruta_ambi != "NOPE":
             rb.ambi_v = False
             cmd = 'rm '+rb.ruta_tmp+'/ambilight'
@@ -72,30 +72,30 @@ def modificar_ambilight(text,rb):
             return "Ambilight desactivado"
         else:
             return "No dispone de sistema ambilight"
-    if text == 'status':
+    if text == 'STATUS':
         if rb.ambi_v == True:
             return "Ambilight esta activado"
         else:
             return "Ambilight esta desactivado"
 
 def modificar_rss(text,rb):
-    if text == 'on':
+    if text == 'ON':
         rb.rss_v = True
         cmd = '> '+rb.ruta_tmp+'/rss'
         os.system(cmd)
         return "RSS activado"
-    if text == 'off':
+    if text == 'OFF':
         rb.rss_v = False
         cmd = 'rm '+rb.ruta_tmp+'/rss'
         os.system(cmd)
         return "RSS desactivado"
-    if text == 'add':
+    if text == 'ADD':
         rb.rssadd = True
         return 'Introduzca el nuevo feed'
-    if text == 'del':
+    if text == 'DEL':
         rb.rssdel = True
         return 'Introduzca el numero que desea eliminar, si no los conoce use /rss list'
-    if text == 'list':
+    if text == 'LIST':
         response = ''
         c = 1
         fpath = rb.ruta_config+'/listarss'
@@ -108,7 +108,7 @@ def modificar_rss(text,rb):
         else:
             response = "Lista vacia"
         return response
-    if text == 'status':
+    if text == 'STATUS':
         if rb.rss_v == True:
             return "RSS esta activado"
         else:

@@ -2,6 +2,9 @@ import os
 
 class raspiBot():
 
+	torrent_m = False
+	ambi_m = False
+	rss_m = False
 	ambi_v = False
 	rss_v = False
 	rssadd = False

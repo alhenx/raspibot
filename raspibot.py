@@ -31,86 +31,115 @@ def echo_message(message):
     key_v = False
     markup = types.ReplyKeyboardMarkup()
 
-    if text == '/chatid':
+    if text == 'CHATID':
         response = "Su ID es: "+str(chat_id)
-    if rb.ID == chat_id and rb.rssadd == False and rb.rssdel == False:
-        if text.startswith('/rss'):
-            if text == '/rss':
-                markup = types.ReplyKeyboardMarkup()
-                markup.row('/rss on','/rss off')
-                markup.row('/rss add', '/rss del')
-                markup.row('/rss status','/rss list')
-                markup.row('/cancel')
-                key_v = True
-            else:
-                response = modificar_rss(text[5:],rb)
-        elif text.startswith('/google'):
-            if(len(text)==7):
-                response = "Existen dos sintaxis correctas, la primera tiene 5 resultados por defecto:\n"+"/google [busqueda]\n"+"/google -[num de resultados(1-8)] [busqueda]"
-            else:
-               response = funcion_google(text[7:])
-        elif text.startswith('/img'):
-            if(len(text)==4):
-                response = "La sintaxis correcta es:\n"+"/img [busqueda]"
-            else:
-                funcion_img(text[4:],rb.ruta_img)
-                img = open(rb.ruta_img+'/image.jpg', 'rb')
-                bot.send_photo(chat_id, img)
-                img.close()
-        elif text.startswith('/wiki'):
-            if(len(text)==5):
-                response = "La sintaxis correcta es:\n"+"/wiki [busqueda]"
-            else:
-                response = funcion_wiki(text[6:])
-        elif text.startswith('/ambilight'):
-            if text == '/ambilight':
-                markup = types.ReplyKeyboardMarkup()
-                markup.row('/ambilight on')
-                markup.row('/ambilight off')
-                markup.row('/ambilight status')
-                markup.row('/cancel')
-                key_v = True
-            else:
-                response = modificar_ambilight(text[11:],rb)
-        elif text.startswith('/torrent'):
-            if text == '/torrent':
-                markup = types.ReplyKeyboardMarkup()
-                markup.row('/torrent on')
-                markup.row('/torrent off')
-                markup.row('/torrent status')
-                markup.row('/cancel')
-                key_v = True
-            else:
-                response = modificar_torrent(text[9:],rb)
-        elif text == '/cancel':
+    if rb.ID == chat_id:
+        if text == 'CANCEL':
+            rb.rss_m = False
+            rb.ambi_m = False
+            rb.torrent_m = False
             key_v = False
-        elif text == '/version':
-            url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version"
-            data = urllib.request.urlopen(url)
-            data = data.read().decode("UTF-8")
-            response ="Current Version: "+str(data)
-        elif text == '/help':
-            response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/version - Comprueba la version del bot\n"
+        elif rb.torrent_m == False and rb.rss_m == False and rb.ambi_m == False:
+            if text.startswith('/google'):
+                if(len(text)==7):
+                    response = "Existen dos sintaxis correctas, la primera tiene 5 resultados por defecto:\n"+"/google [busqueda]\n"+"/google -[num de resultados(1-8)] [busqueda]"
+                else:
+                   response = funcion_google(text[7:])
+            elif text.startswith('/img'):
+                if(len(text)==4):
+                    response = "La sintaxis correcta es:\n"+"/img [busqueda]"
+                else:
+                    funcion_img(text[4:],rb.ruta_img)
+                    img = open(rb.ruta_img+'/image.jpg', 'rb')
+                    bot.send_photo(chat_id, img)
+                    img.close()
+            elif text.startswith('/wiki'):
+                if(len(text)==5):
+                    response = "La sintaxis correcta es:\n"+"/wiki [busqueda]"
+                else:
+                    response = funcion_wiki(text[6:])
+            elif text == 'RSS':
+                markup = types.ReplyKeyboardMarkup()
+                markup.row('ON','OFF')
+                markup.row('ADD', 'DEL')
+                markup.row('STATUS','LIST')
+                markup.row('CANCEL')
+                rb.rss_m = True
+                key_v = True
+            elif text == 'AMBILIGHT':
+                markup = types.ReplyKeyboardMarkup()
+                markup.row('ON')
+                markup.row('OFF')
+                markup.row('STATUS')
+                markup.row('CANCEL')
+                rb.ambi_m = True
+                key_v = True
+            elif text == 'TORRENT':
+                markup = types.ReplyKeyboardMarkup()
+                markup.row('ALERT ON','ALERT OFF')
+                markup.row('ADD', 'DEL')
+                markup.row('ALERT STATUS','LIST')
+                markup.row('CANCEL')
+                rb.torrent_m = True
+                key_v = True
+            elif text == 'VERSION':
+                url = "https://raw.githubusercontent.com/alhenx/raspibot/master/version"
+                data = urllib.request.urlopen(url)
+                data = data.read().decode("UTF-8")
+                response ="Current Version: "+str(data)
+            elif text == 'HELP':
+                response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/version - Comprueba la version del bot\n"
+            else:
+                response = "Comando no encontrado, use /help para informacion"
+        elif rb.torrent_m == True:
+            markup = types.ReplyKeyboardMarkup()
+            markup.row('ALERT ON','ALERT OFF')
+            markup.row('ADD', 'DEL')
+            markup.row('ALERT STATUS','LIST')
+            markup.row('CANCEL')
+            key_v = True
+            response = modificar_torrent(text,rb)
+        elif rb.ambi_m == True:
+            markup = types.ReplyKeyboardMarkup()
+            markup.row('ON')
+            markup.row('OFF')
+            markup.row('STATUS')
+            markup.row('CANCEL')
+            key_v = True
+            response = modificar_ambilight(text,rb)
+        elif rb.rss_m == True and rb.rssadd == False and rb.rssdel == False:
+            markup = types.ReplyKeyboardMarkup()
+            markup.row('ON','OFF')
+            markup.row('ADD', 'DEL')
+            markup.row('STATUS','LIST')
+            markup.row('CANCEL')
+            key_v = True
+            response = modificar_rss(text,rb)
+        elif rb.rssadd == True or rb.rssdel == True:
+            markup = types.ReplyKeyboardMarkup()
+            markup.row('ON','OFF')
+            markup.row('ADD', 'DEL')
+            markup.row('STATUS','LIST')
+            markup.row('CANCEL')
+            key_v = True
+            if text == 'LIST':
+                response = modificar_rss(text,rb)
+                response +='\n Introduzca la opcion que desee'
+            else:
+                response = comprobar_rss(text,rb)
         sendWithKeyboard(response,markup,key_v)
-    elif rb.rssadd == True or rb.rssdel == True:
-        if text == '/rss list':
-            response = modificar_rss(text[5:],rb)
-            response +='\n Introduzca la opcion que desee'
-        else:
-            response = comprobar_rss(text,rb)
-        sendWithKeyboard(response)
     else:
-            response = "Comando no encontrado, use /help para informacion"
+        response = "Comando no encontrado, use /help para informacion"
 
 
 def sendWithKeyboard(response,markup=False,key=False):
     if markup == False:
         markup = types.ReplyKeyboardMarkup()
     if key == False:
-        markup.row('/ambilight')
-        markup.row('/rss')
-        markup.row('/torrent')
-        markup.row('/version')
+        markup.row('TORRENT')
+        markup.row('RSS')
+        markup.row('AMBILIGHT')
+        markup.row('VERSION', 'HELP')
     bot.send_message(rb.ID, text=response, reply_markup=markup)
 
 
