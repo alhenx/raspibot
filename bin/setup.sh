@@ -18,20 +18,19 @@ torrentalertscript="/usr/bin/torrent-finished.sh"
 service="raspibot.service"
 user=$(echo $USER)
 
-echo -e "**************************************************"
-echo -e "******* RaspiBot Beta Bermellón (de China) *******"
-echo -e "**************************************************"
-echo -e "Introduzca el número de la opción deseada del programa:\n"
-echo -e "\t1. Instalación de RaspiBot."
-echo -e "\t2. Actualización de RaspiBot."
-echo -e "\t3. Desinstalación de RaspiBot."
-echo -e "\t4. Consultar estado de RaspiBot."
-echo -e "\t5. Salir."
-
 keepon=true
 
 while $keepon ;
 do
+	echo -e "**************************************************"
+	echo -e "******* RaspiBot Beta Bermellón (de China) *******"
+	echo -e "**************************************************"
+	echo -e "Introduzca el número de la opción deseada del programa:\n"
+	echo -e "\t1. Instalación de RaspiBot."
+	echo -e "\t2. Actualización de RaspiBot."
+	echo -e "\t3. Desinstalación de RaspiBot."
+	echo -e "\t4. Consultar estado de RaspiBot."
+	echo -e "\t5. Salir."
 	read x
 		case $x in
 			1)
@@ -73,18 +72,16 @@ do
 				sudo mkdir -p $torrentendpath
 				sudo chmod a+wx $installdir
 				sudo chmod a+wx $torrentendpath
-				cd $installdir
 
 				echo "Instalando RaspiBot..."
-				git clone https://github.com/alhenx/raspibot.git --quiet
+				git clone https://github.com/alhenx/raspibot.git $botpath --quiet
 
 				echo "A continuación se configurarán algunos archivos..."
-				cd $botpath
-				echo "#!/bin/bash" > $execfile
-				echo "python $installdir/raspibot/raspibot.py &" >> $execfile
-				sudo chmod a+x $execfile
+				echo "#!/bin/bash" > $botpath/$execfile
+				echo "python $installdir/raspibot/raspibot.py &" >> $botpath/$execfile
+				sudo chmod a+x $botpath$execfile
 
-				mkdir tmp
+				mkdir $botpath/tmp
 
 				token_bot=
 				while [[ $token_bot == "" ]]; do
@@ -108,15 +105,15 @@ do
 				ambi_path=$(find / -type f -name $ambilight 2>&1 | grep -v 'find:')
 
 				sleep 0.5
-				mkdir config
+				mkdir $botpath/config
 
-				echo -n $token_bot > config/token_bot
-				echo -n $chat_id > config/chat_id
+				echo -n $token_bot > $botpath/config/token_bot
+				echo -n $chat_id > $botpath/config/chat_id
 
 				if [ $(echo $ambi_path | wc -l) == 1 ] ; then
-					echo -n $ambi_path > config/ambi_path
+					echo -n $ambi_path > $botpath/config/ambi_path
 				else
-					echo -n "NOPE" > config/ambi_path
+					echo -n "NOPE" > $botpath/config/ambi_path
 				fi
 
 				sudo chmod 444 config/*
@@ -124,6 +121,13 @@ do
 				echo -e "\nComprobando si cuenta con $torrent en el sistema..."
 				if (sudo pacman -Q $torrent >/dev/null 2>&1) ; then
 					echo "Se ha detectado $torrent instalado en el sistema."
+					echo "A continuación es necesario introducir el usuario y contraseña"
+					echo "del servicio para $torrent web. Intoruzca su usuario:"
+					read torrentuser
+
+					echo -e "\nIntroduzca la contraseña:"
+					read torrentpass
+
 					echo "Se añadirá este servicio a la lista de alertas de RaspiBot."
 
 					sudo sed -i 's^"script-torrent-done-enabled": false,^"script-torrent-done-enabled": true,^g' $torrentsettings
@@ -135,24 +139,26 @@ do
 	    				echo -e "exit 0" | sudo tee --append $torrentalertscript >/dev/null
 
 	    				sudo chmod a+x $torrentalertscript
+	    				echo -n $torrentuser > $botpath/config/torrentuser
+							echo -n $torrentpass > $botpath/config/torrentpass
 				fi
 
 				sudo ln -s $botpath/bin/raspibot /bin/raspibot
 
-				echo "[Unit]" > $service
-				echo "Description=RaspiBot for Telegram" >> $service
-				echo "" >> $service
-				echo "[Service]" >> $service
-				echo "User=$user" >> $service
-				echo "Type=oneshot" >> $service
-				echo "ExecStart=$execfile" >> $service
-				echo "TimeoutSec=0" >> $service
-				echo "RemainAfterExit=yes" >> $service
-				echo "" >> $service
-				echo "[Install]" >> $service
+				echo "[Unit]" > $botpath/$service
+				echo "Description=RaspiBot for Telegram" >> $botpath/$service
+				echo "" >> $botpath/$service
+				echo "[Service]" >> $botpath/$service
+				echo "User=$user" >> $botpath/$service
+				echo "Type=oneshot" >> $botpath/$service
+				echo "ExecStart=$execfile" >> $botpath/$service
+				echo "TimeoutSec=0" >> $botpath/$service
+				echo "RemainAfterExit=yes" >> $botpath/$service
+				echo "" >> $botpath/$service
+				echo "[Install]" >> $botpath/$service
 				echo "WantedBy=multi-user.target" >> $service
 
-				sudo mv $service /usr/lib/systemd/system/
+				sudo mv $botpath/$service /usr/lib/systemd/system/
 
 				sudo systemctl enable $service
 
@@ -170,16 +176,14 @@ do
 				remoteversion=$(curl -s https://raw.githubusercontent.com/alhenx/raspibot/master/version)
 				if [ "$localversion" != "$remoteversion" ]; then
 					echo "Existe una nueva versión de RaspiBot. Actualizando..."
-					cd $installdir
 					mv $botpath $botpath_bak
-					git clone https://github.com/alhenx/raspibot.git --quiet
+					git clone https://github.com/alhenx/raspibot.git $botpath --quiet
 					echo "Configurando RaspiBot..."
 					cp -r $botpath_bak/config $botpath
 					cp -r $botpath_bak/tmp $botpath
-					cd $botpath
-					echo "#!/bin/bash" > $execfile
-					echo "python $installdir/raspibot/raspibot.py &" >> $execfile
-					sudo chmod a+x $execfile
+					echo "#!/bin/bash" > $botpath/$execfile
+					echo "python $installdir/raspibot/raspibot.py &" >> $botpath/$execfile
+					sudo chmod a+x $botpath/$execfile
 					touch $botpath/tmp/update
 					echo "Eliminando versiones anteriores..."
 					rm -rf $botpath_bak
@@ -215,12 +219,6 @@ do
 			;;
 			*)
 				echo "La opción seleccionada no es válida."
-				echo -e "Introduzca el número de la opción deseada del programa:\n"
-				echo -e "\t1. Instalación de RaspiBot."
-				echo -e "\t2. Actualización de RaspiBot."
-				echo -e "\t3. Desinstalación de RaspiBot."
-				echo -e "\t4. Consultar estado de RaspiBot."
-				echo -e "\t5. Salir."
 			;;
 		esac
 done
