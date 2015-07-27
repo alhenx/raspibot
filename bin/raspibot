@@ -9,10 +9,14 @@ if [ "$1" != "" ]; then
 		"status")
 			/usr/bin/systemctl status raspibot.service
 		;;
+		"exec")
+			python /opt/raspibot-setup/raspibot/raspibot.py &
+		;;
 		*)
-			echo "Opción inválida.Uso:"
+			echo "Opción inválida. Uso:"
 			echo -e "\t update - Actualizar el bot."
 			echo -e "\t status - Muestra el estado del bot."
+			echo -e "\t exec - Ejecutable para el bot (Python)."
 		;;
 	esac
 else

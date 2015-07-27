@@ -34,6 +34,7 @@ do
 	read x
 		case $x in
 			1)
+				echo "******* INSTALACIÓN SELECCIONADA *******"
 				echo "Comenzando proceso de instalación..."
 				sleep 0.5
 				echo "Sincronizando las bases de datos de los paquetes..."
@@ -77,9 +78,9 @@ do
 				git clone https://github.com/alhenx/raspibot.git $botpath --quiet
 
 				echo "A continuación se configurarán algunos archivos..."
-				echo "#!/bin/bash" > $botpath/$execfile
-				echo "python $installdir/raspibot/raspibot.py &" >> $botpath/$execfile
-				sudo chmod a+x $botpath$execfile
+				echo "#!/bin/bash" > $execfile
+				echo "python $botpath/raspibot.py &" >> $execfile
+				sudo chmod a+x $execfile
 
 				mkdir $botpath/tmp
 
@@ -156,7 +157,7 @@ do
 				echo "RemainAfterExit=yes" >> $botpath/$service
 				echo "" >> $botpath/$service
 				echo "[Install]" >> $botpath/$service
-				echo "WantedBy=multi-user.target" >> $service
+				echo "WantedBy=multi-user.target" >> $botpath/$service
 
 				sudo mv $botpath/$service /usr/lib/systemd/system/
 
@@ -171,6 +172,7 @@ do
 			;;
 			### END CASE 1
 			2)
+				echo "******* ACTUALIZACIÓN SELECCIONADA *******"
 				echo "Comprobando actualizaciones..."
 				localversion=$(cat $botpath/version)
 				remoteversion=$(curl -s https://raw.githubusercontent.com/alhenx/raspibot/master/version)
@@ -181,9 +183,9 @@ do
 					echo "Configurando RaspiBot..."
 					cp -r $botpath_bak/config $botpath
 					cp -r $botpath_bak/tmp $botpath
-					echo "#!/bin/bash" > $botpath/$execfile
-					echo "python $installdir/raspibot/raspibot.py &" >> $botpath/$execfile
-					sudo chmod a+x $botpath/$execfile
+					echo "#!/bin/bash" > $execfile
+					echo "python $botpath/raspibot.py &" >> $execfile
+					sudo chmod a+x $execfile
 					touch $botpath/tmp/update
 					echo "Eliminando versiones anteriores..."
 					rm -rf $botpath_bak
@@ -196,6 +198,7 @@ do
 			;;
 			### END CASE 2
 			3)
+				echo "******* DESINSTALACIÓN SELECCIONADA *******"
 				echo "Comenzando proceso de desinstalación..."
 				sudo rm -rf $installdir >/dev/null 2>&1
 				sudo rm -rf $torrentendpath > /dev/null 2>&1
