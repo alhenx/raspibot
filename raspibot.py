@@ -31,8 +31,6 @@ def echo_message(message):
     key_v = False
     markup = types.ReplyKeyboardMarkup()
 
-    if text == 'CHATID':
-        response = "Su ID es: "+str(chat_id)
     if rb.ID == chat_id:
         if text == 'CANCEL':
             rb.rss_m = False
