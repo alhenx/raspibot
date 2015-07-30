@@ -47,11 +47,36 @@ def modificar_torrent(text,rb):
         cmd = 'rm '+rb.ruta_tmp+'/torrent'
         os.system(cmd)
         return "Aviso de torrent desactivado"
+    if text == 'LIST':
+        cmd = rb.ruta_bot+'/bin/torrentlist'
+        return os.popen(cmd).read()
+    if text == 'ADD':
+        rb.torrentadd = True
+        return 'Introduzca el magnet del torrent'
+    if text == 'DEL':
+        rb.torrentdel = True
+        return 'Introduzca el numero del torrent que desea eliminar, si no los conoce use LIST'
     if text == 'ALERT STATUS':
         if rb.torrent_v == True:
             return "El aviso de torrent esta activado"
         else:
             return "El aviso de torrent esta desactivado"
+
+def comprobar_torrent(text,rb):
+    if rb.torrentadd == True:
+        cmd = 'transmission-remote -n '+rb.torrent_user+':'+rb.torrent_pass+' -a "'+text+'"'
+        response = os.popen(cmd).read()
+        if response.startswith('Error'):
+            response = "Magnet invalido"
+        else:
+            rb.torrentadd = False
+            response = 'El torrent ha sido introducido con exito'
+    if rb.torrentdel == True:
+        cmd = 'transmission-remote -n '+rb.torrent_user+':'+rb.torrent_pass+' -t '+text+' -r'
+        os.system(cmd)
+        rb.torrentdel = False
+        response = 'El torrent con la ID '+text+' ha sido eliminado'
+    return response
 
 def modificar_ambilight(text,rb):
     if text == 'ON':
@@ -97,7 +122,7 @@ def modificar_rss(text,rb):
         return 'Introduzca el nuevo feed'
     if text == 'DEL':
         rb.rssdel = True
-        return 'Introduzca el numero que desea eliminar, si no los conoce use /rss list'
+        return 'Introduzca el numero que desea eliminar, si no los conoce use LIST'
     if text == 'LIST':
         response = ''
         c = 1

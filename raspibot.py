@@ -89,7 +89,7 @@ def echo_message(message):
                 response = "Comandos disponibles:\n"+"RSS - Gestiona el servicio RSS\n"+"AMBILIGHT - Gestiona el servicio ambilight\n"+"TORRENT - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"VERSION - Comprueba la version del bot\n"
             else:
                 response = "Comando no encontrado, use HELP para informacion"
-        elif rb.torrent_m == True:
+        elif rb.torrent_m == True and rb.torrentadd == False and rb.torrentdel == False:
             markup = types.ReplyKeyboardMarkup()
             markup.row('ALERT ON','ALERT OFF')
             markup.row('ADD', 'DEL')
@@ -113,6 +113,18 @@ def echo_message(message):
             markup.row('CANCEL')
             key_v = True
             response = modificar_rss(text,rb)
+        elif rb.torrentadd == True or rb.torrentdel == True:
+            markup = types.ReplyKeyboardMarkup()
+            markup.row('ALERT ON','ALERT OFF')
+            markup.row('ADD', 'DEL')
+            markup.row('ALERT STATUS','LIST')
+            markup.row('CANCEL')
+            key_v = True
+            if text == 'LIST':
+                response = modificar_torrent(text,rb)
+                response +='\n Introduzca la opcion que desee'
+            else:
+                response = comprobar_torrent(text,rb)
         elif rb.rssadd == True or rb.rssdel == True:
             markup = types.ReplyKeyboardMarkup()
             markup.row('ON','OFF')
@@ -150,6 +162,10 @@ if comprobar_update(rb) == True:
     sendWithKeyboard('Version actualizada ['+version+']')
 if comprobar_version(rb) == False:
     sendWithKeyboard('Hay una nueva version disponible. Utilice "raspibot update" en su terminal.')
+version = open(rb.ruta_bot+'/version')
+ver = version.read()
+version.close()
+sendWithKeyboard('Soy RaspiBot '+ver+', tu asistente personal.')
 bot.polling(True)
 
 while True:

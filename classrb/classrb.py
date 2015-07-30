@@ -8,6 +8,8 @@ class raspiBot():
 	ambi_v = False
 	rss_v = False
 	rssadd = False
+	torrentadd = False
+	torrentdel = False
 	rssdel = False
 	torrent_v = False
 	cont = 0
@@ -33,6 +35,9 @@ class raspiBot():
 	ruta_ambi=str(os.popen("cat "+ruta_bot+"/config/ambi_path").read())
 	#Ruta para el torrent
 	filetorrent="/opt/torrentsend/torrentsended"
+
+	torrent_user=str(os.popen("cat "+ruta_bot+"/config/torrentuser").read())
+	torrent_pass=str(os.popen("cat "+ruta_bot+"/config/torrentpass").read())
 
 	#######################################################
 
