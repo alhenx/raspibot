@@ -2,7 +2,7 @@
 Raspibot is a Telegram's Bot to control your Raspberry Pi and keed in contact with it.
 
 ### Version
-Current 1.0 "Cabashito Carmesi"
+Current: 1.0 "Cabashito Carmesi"
 
 Olders:  
 - 0.3.1 "Beta Bermellón (de China)"  
