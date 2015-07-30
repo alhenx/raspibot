@@ -156,7 +156,7 @@ do
 				echo "[Service]" >> $botpath/$service
 				echo "User=$user" >> $botpath/$service
 				echo "Type=oneshot" >> $botpath/$service
-				echo "ExecStart=raspibot exec" >> $botpath/$service
+				echo "ExecStart=/bin/raspibot exec" >> $botpath/$service
 				echo "TimeoutSec=0" >> $botpath/$service
 				echo "RemainAfterExit=yes" >> $botpath/$service
 				echo "" >> $botpath/$service
