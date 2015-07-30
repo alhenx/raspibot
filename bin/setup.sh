@@ -30,8 +30,7 @@ do
 	echo -e "\t1. Instalación de RaspiBot."
 	echo -e "\t2. Actualización de RaspiBot."
 	echo -e "\t3. Desinstalación de RaspiBot."
-	echo -e "\t4. Consultar estado de RaspiBot."
-	echo -e "\t5. Salir."
+	echo -e "\t4. Salir."
 	read x
 		case $x in
 			1)
@@ -170,7 +169,8 @@ do
 				sudo systemctl start $service
 
 				echo -e "\nSe ha creado, activado e iniciado el servicio 'raspibot'."
-				echo "Puede consultar su estado con 'sudo systemctl status $service'"
+				echo "Puede consultar su estado con 'raspibot status'. Para ver más opciones,"
+				echo "utilice 'raspibot help'."
 				echo "Proceso de instalación completado. RaspiBot instalado."
 				keepon=false
 			;;
@@ -240,12 +240,6 @@ do
 			;;
 			### END CASE 3
 			4)
-				echo "Comprobando estado..."
-				sudo systemctl status $service
-				keepon=false
-			;;
-			### END CASE 4
-			5)
 				keepon=false
 				echo "Saliendo..."
 			;;
