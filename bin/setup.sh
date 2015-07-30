@@ -143,8 +143,8 @@ do
 					echo -n $torrentpass > $botpath/config/torrentpass
 				fi
 
-				echo "#!/bin/bash" > $restartscript
-				echo "/usr/bin/systemctl restart $service"
+				echo -e "#!/bin/bash" | sudo tee $restartscript >/dev/null
+				echo -e "/usr/bin/systemctl restart $service" | sudo tee --append $restartscript >/dev/null
 				sudo chmod 500 $restartscript
 				echo -e "$user ALL=(ALL) NOPASSWD: $restartscript" | sudo tee --append /etc/sudoers >/dev/null
 
@@ -199,8 +199,8 @@ do
 						sudo sed -i 's^ExecStart='"$execfile"'^ExecStart=raspibot exec^g' /usr/lib/systemd/system/$service
 					fi
 					if [ ! -f $restartscript ] ; then
-						echo "#!/bin/bash" > $restartscript
-						echo "/usr/bin/systemctl restart $service"
+						echo -e "#!/bin/bash" | sudo tee $restartscript >/dev/null
+						echo -e "/usr/bin/systemctl restart $service" | sudo tee --append $restartscript >/dev/null
 						sudo chmod 500 $restartscript
 						echo -e "$user ALL=(ALL) NOPASSWD: $restartscript" | sudo tee --append /etc/sudoers >/dev/null
 					fi
