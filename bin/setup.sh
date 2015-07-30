@@ -15,6 +15,7 @@ ambilight="boblight-dispmanx"
 torrent="transmission-cli"
 torrentsettings="/var/lib/transmission/.config/transmission-daemon/settings.json"
 torrentalertscript="/usr/bin/torrent-finished.sh"
+restartscript="/usr/local/bin/restartraspibot.sh"
 service="raspibot.service"
 user=$(echo $USER)
 
@@ -78,10 +79,6 @@ do
 				git clone https://github.com/alhenx/raspibot.git $botpath --quiet
 
 				echo "A continuación se configurarán algunos archivos..."
-				echo "#!/bin/bash" > $execfile
-				echo "python $botpath/raspibot.py &" >> $execfile
-				sudo chmod a+x $execfile
-
 				mkdir $botpath/tmp
 
 				token_bot=
@@ -111,7 +108,7 @@ do
 				echo -n $token_bot > $botpath/config/token_bot
 				echo -n $chat_id > $botpath/config/chat_id
 
-				if [ $(echo $ambi_path | wc -l) == 1 ] ; then
+				if [ $(echo $ambi_path | wc -l) == 1 -a $(echo $ambi_path) != "" ] ; then
 					echo -n $ambi_path > $botpath/config/ambi_path
 				else
 					echo -n "NOPE" > $botpath/config/ambi_path
@@ -123,7 +120,7 @@ do
 				if (sudo pacman -Q $torrent >/dev/null 2>&1) ; then
 					echo "Se ha detectado $torrent instalado en el sistema."
 					echo "A continuación es necesario introducir el usuario y contraseña"
-					echo "del servicio para $torrent web. Intoruzca su usuario:"
+					echo "del servicio para $torrent web. Introduzca su usuario:"
 					read torrentuser
 
 					echo -e "\nIntroduzca la contraseña:"
@@ -132,17 +129,24 @@ do
 					echo "Se añadirá este servicio a la lista de alertas de RaspiBot."
 
 					sudo sed -i 's^"script-torrent-done-enabled": false,^"script-torrent-done-enabled": true,^g' $torrentsettings
-	    				sudo sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$torrentalertscript"'",^g' $torrentsettings
+  				sudo sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$torrentalertscript"'",^g' $torrentsettings
 
-	    				echo -e '#!/bin/bash' | sudo tee $torrentalertscript >/dev/null
-	    				echo -e 'torrentsalertfile="'"$torrentsfile"'"' | sudo tee --append $torrentalertscript >/dev/null
-	    				echo -e 'echo $TR_TORRENT_NAME > $torrentsalertfile' | sudo tee --append $torrentalertscript >/dev/null
-	    				echo -e "exit 0" | sudo tee --append $torrentalertscript >/dev/null
+  				echo -e '#!/bin/bash' | sudo tee $torrentalertscript >/dev/null
+  				echo -e 'torrentsalertfile="'"$torrentsfile"'"' | sudo tee --append $torrentalertscript >/dev/null
+  				echo -e 'echo $TR_TORRENT_NAME > $torrentsalertfile' | sudo tee --append $torrentalertscript >/dev/null
+  				echo -e "exit 0" | sudo tee --append $torrentalertscript >/dev/null
 
-	    				sudo chmod a+x $torrentalertscript
-	    				echo -n $torrentuser > $botpath/config/torrentuser
-							echo -n $torrentpass > $botpath/config/torrentpass
+  				sudo systemctl reload transmission
+
+  				sudo chmod a+x $torrentalertscript
+  				echo -n $torrentuser > $botpath/config/torrentuser
+					echo -n $torrentpass > $botpath/config/torrentpass
 				fi
+
+				echo "#!/bin/bash" > $restartscript
+				echo "/usr/bin/systemctl restart $service"
+				sudo chmod 500 $restartscript
+				echo -e "$user ALL=(ALL) NOPASSWD: $restartscript" | sudo tee --append /etc/sudoers >/dev/null
 
 				sudo ln -s $botpath/bin/raspibot /bin/raspibot
 
@@ -152,7 +156,7 @@ do
 				echo "[Service]" >> $botpath/$service
 				echo "User=$user" >> $botpath/$service
 				echo "Type=oneshot" >> $botpath/$service
-				echo "ExecStart=$execfile" >> $botpath/$service
+				echo "ExecStart=raspibot exec" >> $botpath/$service
 				echo "TimeoutSec=0" >> $botpath/$service
 				echo "RemainAfterExit=yes" >> $botpath/$service
 				echo "" >> $botpath/$service
@@ -183,13 +187,37 @@ do
 					echo "Configurando RaspiBot..."
 					cp -r $botpath_bak/config $botpath
 					cp -r $botpath_bak/tmp $botpath
-					echo "#!/bin/bash" > $execfile
-					echo "python $botpath/raspibot.py &" >> $execfile
-					sudo chmod a+x $execfile
 					touch $botpath/tmp/update
 					echo "Eliminando versiones anteriores..."
 					rm -rf $botpath_bak
-					sudo systemctl restart raspibot.service
+					oldexecfile="$botpath_bak/raspibot.sh"
+					if [ -f $oldexecfile ] ; then
+						rm -f $oldexecfile
+						if [ ! -f /bin/raspibot ] ; then
+							sudo ln -s $botpath/bin/raspibot /bin/raspibot
+						fi
+						sudo sed -i 's^ExecStart='"$execfile"'^ExecStart=raspibot exec^g' /usr/lib/systemd/system/$service
+					fi
+					if [ ! -f $restartscript ] ; then
+						echo "#!/bin/bash" > $restartscript
+						echo "/usr/bin/systemctl restart $service"
+						sudo chmod 500 $restartscript
+						echo -e "$user ALL=(ALL) NOPASSWD: $restartscript" | sudo tee --append /etc/sudoers >/dev/null
+					fi
+					if [ ! -f $botpath/config/torrentuser ] ; then
+						echo "Se ha detectado $torrent instalado en el sistema, pero no"
+						echo "está configurado para utilizarse mediante RaspiBot."
+						echo "A continuación es necesario introducir el usuario y contraseña"
+						echo "del servicio para $torrent web. Introduzca su usuario:"
+						read torrentuser
+
+						echo -e "\nIntroduzca la contraseña:"
+						read torrentpass
+
+	  				echo -n $torrentuser > $botpath/config/torrentuser
+						echo -n $torrentpass > $botpath/config/torrentpass
+					fi
+					raspibot restart
 					echo "Actualización completada."
 				else
 					echo "No hay actualizaciones disponibles para RaspiBot."

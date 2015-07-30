@@ -2,7 +2,7 @@
 Raspibot is a Telegram's Bot to control your Raspberry Pi and keed in contact with it.
 
 ### Version
-Current: 0.2.8 "Beta Bermellón (de China)"
+Current: 0.3 "Beta Bermellón (de China)"
 
 Olders: 0.1 "Alpha"
 
@@ -14,9 +14,9 @@ $ bash <(curl -sL git.io/raspibotsetup)
 ```
 
 ### Update
-To update RaspiBot, you only need to execute our setup Bash script:
+To update RaspiBot, all you need is use the raspibot bin, which has multiple operations, such as updating RaspiBot:
 
 ```sh
-$ bash <(curl -sL git.io/raspibotupdate)
+$ raspibot update
 ```
 

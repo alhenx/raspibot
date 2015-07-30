@@ -1,7 +1,6 @@
 #!/bin/bash
 
 if [ "$1" != "" ]; then
-
 	case $1 in
 		"update")
 			echo 2 | bash <(curl -sL git.io/raspibotsetup)
@@ -12,13 +11,21 @@ if [ "$1" != "" ]; then
 		"exec")
 			python /opt/raspibot-setup/raspibot/raspibot.py &
 		;;
+		"restart")
+			sudo /usr/local/bin/restartraspibot.sh
+		;;
+		"help")
+			echo "Uso: rasipbot [opción]"
+			echo "Las opciones disponbiles son:"
+			echo -e "\t update - Actualizar RaspiBot."
+			echo -e "\t status - Muestra el estado de RaspiBot."
+			echo -e "\t exec - Ejecutable para RaspiBot (Python)."
+			echo -e "\t restart - Reiniciar el servicio de RaspiBot."
+			echo -e "\t help - Ayuda de este ejecutable."
 		*)
-			echo "Opción inválida. Uso:"
-			echo -e "\t update - Actualizar el bot."
-			echo -e "\t status - Muestra el estado del bot."
-			echo -e "\t exec - Ejecutable para el bot (Python)."
+			echo "Opción inválida. Use help para ver una lista de opciones."
 		;;
 	esac
 else
-	echo "Debe introducir una acción."
+	echo "Debe introducir una opción. Use help para ver una lista de opciones."
 fi
