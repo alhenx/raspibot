@@ -86,9 +86,9 @@ def echo_message(message):
                 data = data.read().decode("UTF-8")
                 response ="Current Version: "+str(data)
             elif text == 'HELP':
-                response = "Comandos disponibles:\n"+"/chatid - Devuelve la ID del chat\n"+"/rss - Gestiona el servicio RSS\n"+"/ambilight - Gestiona el servicio ambilight\n"+"/torrent - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"/version - Comprueba la version del bot\n"
+                response = "Comandos disponibles:\n"+"RSS - Gestiona el servicio RSS\n"+"AMBILIGHT - Gestiona el servicio ambilight\n"+"TORRENT - Gestiona el servicio de aviso de torrents\n"+"/google - Realiza busquedas en google\n"+"/img - Realiza busquedas de imagenes en google\n"+"/wiki - Realiza busquedas en Wikipedia\n"+"VERSION - Comprueba la version del bot\n"
             else:
-                response = "Comando no encontrado, use /help para informacion"
+                response = "Comando no encontrado, use HELP para informacion"
         elif rb.torrent_m == True:
             markup = types.ReplyKeyboardMarkup()
             markup.row('ALERT ON','ALERT OFF')
@@ -127,7 +127,7 @@ def echo_message(message):
                 response = comprobar_rss(text,rb)
         sendWithKeyboard(response,markup,key_v)
     else:
-        response = "Comando no encontrado, use /help para informacion"
+        response = "Comando no encontrado, use HELP para informacion"
 
 
 def sendWithKeyboard(response,markup=False,key=False):
@@ -149,7 +149,7 @@ if comprobar_update(rb) == True:
     version = version.read()
     sendWithKeyboard('Version actualizada ['+version+']')
 if comprobar_version(rb) == False:
-    sendWithKeyboard('Hay una nueva version disponible. Utilice "bash <(curl -sL git.io/raspibotupdate)" en su terminal.')
+    sendWithKeyboard('Hay una nueva version disponible. Utilice "raspibot update" en su terminal.')
 bot.polling(True)
 
 while True:
@@ -163,7 +163,7 @@ while True:
         rb.cont = 0
     if comprobar_version(rb) == False and rb.contv == 3600:
         rb.contv = 0
-        sendWithKeyboard('Hay una nueva version disponible. Utilice "bash <(curl -sL git.io/raspibotupdate)" en su terminal.')
+        sendWithKeyboard('Hay una nueva version disponible. Utilice "raspibot update" en su terminal.')
     rb.cont += 1
     rb.contv += 1
     pass
