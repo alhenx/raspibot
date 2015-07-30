@@ -22,6 +22,7 @@ if [ "$1" != "" ]; then
 			echo -e "\t exec - Ejecutable para RaspiBot (Python)."
 			echo -e "\t restart - Reiniciar el servicio de RaspiBot."
 			echo -e "\t help - Ayuda de este ejecutable."
+		;;
 		*)
 			echo "Opción inválida. Use help para ver una lista de opciones."
 		;;
