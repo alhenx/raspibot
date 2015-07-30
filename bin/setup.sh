@@ -114,7 +114,7 @@ do
 					echo -n "NOPE" > $botpath/config/ambi_path
 				fi
 
-				sudo chmod 444 config/*
+				sudo chmod 444 $botpath/config/*
 
 				echo -e "\nComprobando si cuenta con $torrent en el sistema..."
 				if (sudo pacman -Q $torrent >/dev/null 2>&1) ; then
@@ -230,17 +230,18 @@ do
 				echo "Comenzando proceso de desinstalación..."
 				sudo rm -rf $installdir >/dev/null 2>&1
 				sudo rm -rf $torrentendpath > /dev/null 2>&1
-				sudo systemctl stop raspibot >/dev/null 2>&1
-				sudo systemctl disable raspibot >/dev/null 2>&1
-				sudo rm /usr/lib/systemd/system/raspibot.service >/dev/null 2>&1
+				sudo systemctl stop $service >/dev/null 2>&1
+				sudo systemctl disable $service >/dev/null 2>&1
+				sudo rm /usr/lib/systemd/system/$service >/dev/null 2>&1
 				sudo rm -f /bin/raspibot >/dev/null 2>&1
+				sudo rm -f $restartscript >/dev/null 2>&1
 				echo "Desinstalación completada."
 				keepon=false
 			;;
 			### END CASE 3
 			4)
 				echo "Comprobando estado..."
-				sudo systemctl status raspibot
+				sudo systemctl status $service
 				keepon=false
 			;;
 			### END CASE 4
