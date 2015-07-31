@@ -12,7 +12,7 @@ Olders:
 To install RaspiBot, you only need to execute our setup Bash script:
 
 ```sh
-$ bash <(curl -sL git.io/raspibotsetup)
+$ bash <(curl -sL git.io/raspibot-setup)
 ```
 
 ### Update
