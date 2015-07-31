@@ -11,11 +11,68 @@ torrent="transmission-cli"
 torrentsettings="/var/lib/transmission/.config/transmission-daemon/settings.json"
 torrentalertscript="/usr/bin/torrent-finished.sh"
 restartscript="/usr/local/bin/restartraspibot.sh"
+raspibotsysctl="/usr/local/bin/raspibotsysctl"
 service="raspibot.service"
 user=$(echo $USER)
 
+function update_bot {
+	cd # Va a /home/$user
+	mv $botpath $botpath_bak
+	git clone https://github.com/alhenx/raspibot.git $botpath --quiet
+	echo "Configurando RaspiBot..."
+	cp -r $botpath_bak/config $botpath
+	cp -r $botpath_bak/tmp $botpath
+	touch $botpath/tmp/update
+	echo "Eliminando versiones anteriores..."
+	rm -rf $botpath_bak
+	oldexecfile="$botpath_bak/raspibot.sh"
+	if [ -f $oldexecfile ] ; then
+		rm -f $oldexecfile
+		if [ ! -f /bin/raspibot ] ; then
+			sudo ln -s $botpath/bin/raspibot /bin/raspibot
+		fi
+		sudo systemctl stop $service
+		sudo sed -i 's^ExecStart='"$execfile"'^ExecStart=/bin/raspibot exec^g' /usr/lib/systemd/system/$service
+		sudo systemctl start $service
+	fi
+	if [ -f $restartscript ] ; then
+		sudo rm -f $restartscript >/dev/null 2>&1
+		sudo sed -i '\^'"$restartscript"'^d' /etc/sudoers
+	fi
+	if [ ! -f $botpath/config/torrentuser ] ; then
+		echo "Se ha detectado $torrent instalado en el sistema, pero no"
+		echo "está configurado para utilizarse mediante RaspiBot."
+		echo "A continuación es necesario introducir el usuario y contraseña"
+		echo "del servicio para $torrent web. Introduzca su usuario:"
+		read torrentuser
+
+		echo -e "\nIntroduzca la contraseña:"
+		read torrentpass
+
+		echo -n $torrentuser > $botpath/config/torrentuser
+		echo -n $torrentpass > $botpath/config/torrentpass
+	fi
+	if [ ! -f $raspibotsysctl ] ; then
+		sudo ln -s $botpath/bin/raspibotsysctl $raspibotsysctl
+	fi
+	raspibot restart
+	echo "Actualización completada."
+}
+
 if [ "$1" != "" ]; then
 	case $1 in
+		"start")
+			sudo $raspibotsysctl start
+		;;
+		"stop")
+			sudo $raspibotsysctl stop
+		;;
+		"restart")
+			sudo $raspibotsysctl restart
+		;;
+		"status")
+			sudo $raspibotsysctl status
+		;;
 		"update")
 			echo "******* ACTUALIZACIÓN SELECCIONADA *******"
 			echo "Comprobando actualizaciones..."
@@ -23,66 +80,29 @@ if [ "$1" != "" ]; then
 			remoteversion=$(curl -s https://raw.githubusercontent.com/alhenx/raspibot/master/version)
 			if [ "$localversion" != "$remoteversion" ]; then
 				echo "Existe una nueva versión de RaspiBot. Actualizando..."
-				mv $botpath $botpath_bak
-				git clone https://github.com/alhenx/raspibot.git $botpath --quiet
-				echo "Configurando RaspiBot..."
-				cp -r $botpath_bak/config $botpath
-				cp -r $botpath_bak/tmp $botpath
-				touch $botpath/tmp/update
-				echo "Eliminando versiones anteriores..."
-				rm -rf $botpath_bak
-				oldexecfile="$botpath_bak/raspibot.sh"
-				if [ -f $oldexecfile ] ; then
-					rm -f $oldexecfile
-					if [ ! -f /bin/raspibot ] ; then
-						sudo ln -s $botpath/bin/raspibot /bin/raspibot
-					fi
-					sudo systemctl stop $service
-					sudo sed -i 's^ExecStart='"$execfile"'^ExecStart=/bin/raspibot exec^g' /usr/lib/systemd/system/$service
-					sudo systemctl start $service
-				fi
-				if [ ! -f $restartscript ] ; then
-					echo -e "#!/bin/bash" | sudo tee $restartscript >/dev/null
-					echo -e "/usr/bin/systemctl restart $service" | sudo tee --append $restartscript >/dev/null
-					sudo chmod 500 $restartscript
-					echo -e "$user ALL=(ALL) NOPASSWD: $restartscript" | sudo tee --append /etc/sudoers >/dev/null
-				fi
-				if [ ! -f $botpath/config/torrentuser ] ; then
-					echo "Se ha detectado $torrent instalado en el sistema, pero no"
-					echo "está configurado para utilizarse mediante RaspiBot."
-					echo "A continuación es necesario introducir el usuario y contraseña"
-					echo "del servicio para $torrent web. Introduzca su usuario:"
-					read torrentuser
-
-					echo -e "\nIntroduzca la contraseña:"
-					read torrentpass
-
-  				echo -n $torrentuser > $botpath/config/torrentuser
-					echo -n $torrentpass > $botpath/config/torrentpass
-				fi
-				raspibot restart
-				echo "Actualización completada."
+				update_bot # Utiliza la función update_bot.
 			else
 				echo "No hay actualizaciones disponibles para RaspiBot."
 			fi
 		;;
-		"status")
-			/usr/bin/systemctl status raspibot.service
+		"force-update")
+			echo "******* ACTUALIZACIÓN FORZADA SELECCIONADA *******"
+			update_bot # Utiliza la función update_bot.
 		;;
 		"exec")
 			python /opt/raspibot-setup/raspibot/raspibot.py &
 		;;
-		"restart")
-			sudo /usr/local/bin/restartraspibot.sh
-		;;
 		"help")
 			echo "Uso: rasipbot [opción]"
 			echo "Las opciones disponbiles son:"
-			echo -e "\t update - Actualizar RaspiBot."
-			echo -e "\t status - Muestra el estado de RaspiBot."
-			echo -e "\t exec - Ejecutable para RaspiBot (Python)."
+			echo -e "\t start - Inicia el servicio de RaspiBot."
+			echo -e "\t stop - Para el servicio de RaspiBot."
 			echo -e "\t restart - Reiniciar el servicio de RaspiBot."
-			echo -e "\t help - Ayuda de este ejecutable."
+			echo -e "\t status - Muestra el estado del servicio de RaspiBot."
+			echo -e "\t exec - Ejecutable para RaspiBot (Python)."
+			echo -e "\t update - Actualizar RaspiBot (CON comprobación de versiones)."
+			echo -e "\t force-update - Actualizar RaspiBot (SIN comprobación de versiones)."
+			echo -e "\t help - Muestra la ayuda."
 		;;
 		*)
 			echo "Opción inválida. Use help para ver una lista de opciones."
