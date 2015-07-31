@@ -1,5 +1,4 @@
 nohup.out
 tmp/
-raspibot.sh
 config/
 **/*.pyc
