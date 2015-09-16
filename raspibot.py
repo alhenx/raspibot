@@ -156,12 +156,6 @@ def sendWithKeyboard(response,markup=False,key=False):
 #######################################################
 
 setup_ini(rb)
-if comprobar_update(rb) == True:
-    version = open(rb.ruta_bot+'/version')
-    version = version.read()
-    sendWithKeyboard('Version actualizada ['+version+']')
-if comprobar_version(rb) == False:
-    sendWithKeyboard('Hay una nueva version disponible. Utilice "raspibot update" en su terminal.')
 version = open(rb.ruta_bot+'/version')
 ver = version.read()
 version.close()
@@ -177,9 +171,5 @@ while True:
         mens_rss=funcion_rss(rb)
         if mens_rss: sendWithKeyboard(mens_rss)
         rb.cont = 0
-    if comprobar_version(rb) == False and rb.contv == 3600:
-        rb.contv = 0
-        sendWithKeyboard('Hay una nueva version disponible. Utilice "raspibot update" en su terminal.')
     rb.cont += 1
-    rb.contv += 1
     pass
