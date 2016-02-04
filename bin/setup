@@ -89,17 +89,17 @@ do
 				echo "Comprobando paquetes necesarios del sistema."
 				pypkg="python"
 				pippkg="python-pip"
-				:' hay que rehacer
-				if !(sudo pacman -Q $pypkg >/dev/null 2>&1) ; then
-					echo "Instalando $pypkg..."
-					sudo pacman -S $pypkg --noconfirm >/dev/null
-				fi
+				#hay que rehacer
+				#if !(sudo pacman -Q $pypkg >/dev/null 2>&1) ; then
+				#	echo "Instalando $pypkg..."
+				#	sudo pacman -S $pypkg --noconfirm >/dev/null
+				#fi
 
-				if !(sudo pacman -Q $pippkg >/dev/null 2>&1) ; then
-					echo "Instalando $pippkg..."
-					sudo pacman -S $pippkg --noconfirm >/dev/null
-				fi
-				'
+				#if !(sudo pacman -Q $pippkg >/dev/null 2>&1) ; then
+				#	echo "Instalando $pippkg..."
+				#	sudo pacman -S $pippkg --noconfirm >/dev/null
+				#fi
+				
 				echo "Comprobando módulos pip."
 				pipmodules[0]=pyTelegramBotAPI
 				pipmodules[1]=wikipedia
