@@ -12,8 +12,8 @@ torrentendpath="/opt/torrentsend"
 torrentsfile="$torrentendpath/torrentsended"
 execfile="$botpath/raspibot.sh"
 ambilight="boblight-dispmanx"
-torrent="transmission-cli"
-torrentsettings="/var/lib/transmission/.config/transmission-daemon/settings.json"
+torrent="transmission-daemon"
+torrentsettings="/var/lib/transmission-daemon/.config/transmission-daemon/settings.json"
 torrentalertscript="/usr/bin/torrent-finished.sh"
 restartscript="/usr/local/bin/restartraspibot.sh"
 raspibotsysctl="/usr/local/bin/raspibotsysctl"
@@ -83,12 +83,13 @@ do
 				echo "Comenzando proceso de instalación..."
 				cd # Va a /home/$user
 				echo "Sincronizando las bases de datos de los paquetes..."
-				sudo pacman -Syy >/dev/null
+				#Hay que cambiar para OSMC
+				#sudo pacman -Syy >/dev/null
 
 				echo "Comprobando paquetes necesarios del sistema."
 				pypkg="python"
 				pippkg="python-pip"
-
+				:' hay que rehacer
 				if !(sudo pacman -Q $pypkg >/dev/null 2>&1) ; then
 					echo "Instalando $pypkg..."
 					sudo pacman -S $pypkg --noconfirm >/dev/null
@@ -98,7 +99,7 @@ do
 					echo "Instalando $pippkg..."
 					sudo pacman -S $pippkg --noconfirm >/dev/null
 				fi
-
+				'
 				echo "Comprobando módulos pip."
 				pipmodules[0]=pyTelegramBotAPI
 				pipmodules[1]=wikipedia
@@ -156,7 +157,8 @@ do
 				sudo chmod 444 $botpath/config/*
 
 				echo -e "\nComprobando si cuenta con $torrent en el sistema..."
-				if (sudo pacman -Q $torrent >/dev/null 2>&1) ; then
+				#if (sudo pacman -Q $torrent >/dev/null 2>&1) ; then
+				if (sudo apt-cache policy $torrent >/dev/null 2>&1) ; then
 					echo "Se ha detectado $torrent instalado en el sistema."
 					echo "A continuación es necesario introducir el usuario y contraseña"
 					echo "del servicio para $torrent web. Introduzca su usuario:"
