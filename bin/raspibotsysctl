@@ -1,20 +1,20 @@
-#!/bin/bash
+#!/bin/sh
 
-service="raspibot.service"
+SERVICE="raspibot.service"
 
 if [ "$1" != "" ]; then
 	case $1 in
 		"start")
-			/usr/bin/systemctl start $service
+			/usr/bin/systemctl start $SERVICE
 		;;
 		"stop")
-			/usr/bin/systemctl stop $service
+			/usr/bin/systemctl stop $SERVICE
 		;;
 		"restart")
-			/usr/bin/systemctl restart $service
+			/usr/bin/systemctl restart $SERVICE
 		;;
 		"status")
-			/usr/bin/systemctl status $service
+			/usr/bin/systemctl status $SERVICE
 		;;
 		*)
 			echo "Unknown operation '$1'."

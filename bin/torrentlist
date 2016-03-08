@@ -1,14 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-user=$(cat /opt/raspibot-setup/raspibot/config/torrentuser)
-pass=$(cat /opt/raspibot-setup/raspibot/config/torrentpass)
+TORR_USER=$(cat /opt/raspibot-setup/raspibot/config/torrentuser)
+TORR_PASS=$(cat /opt/raspibot-setup/raspibot/config/torrentpass)
 
-torrentlist=$(transmission-remote -n $user:$pass -l | sed -e '1d;$d;s/^ *//' | cut --only-delimited --delimiter=" " --fields=1)
-
-echo -e "ID\tNAME"
-
-for torrentid in $torrentlist
-do
-	torrentname=$(transmission-remote -n $user:$pass -t $torrentid -i | grep "Name:" | cut -c 9-)
-	echo -e "$torrentid\t$torrentname"
-done
+transmission-remote -n $TORR_USER:$TORR_PASS -l | sed -e '1d;$d;s/^ *//' | awk '{print $1 "\t" substr($0,index($0,$10))}'

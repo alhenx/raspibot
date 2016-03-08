@@ -1,72 +1,112 @@
-#!/bin/bash
+#!/bin/sh
 
-# Script de instalación de RaspiBot.
+# Raspibot's setup script.
 # Raúl Díez Sánchez - Alejandro Chacón Peregrino.
 
-#ATENCIÓN: NO EDITAR ESTE FICHERO.
-
-installdir="/opt/raspibot-setup"
-botpath="$installdir/raspibot"
-botpath_bak="$botpath-bak"
-torrentendpath="/opt/torrentsend"
-torrentsfile="$torrentendpath/torrentsended"
-execfile="$botpath/raspibot.sh"
-ambilight="boblight-dispmanx"
-torrent="transmission-daemon"
-torrentsettings="/var/lib/transmission-daemon/.config/transmission-daemon/settings.json"
-torrentalertscript="/usr/bin/torrent-finished.sh"
-restartscript="/usr/local/bin/restartraspibot.sh"
-raspibotsysctl="/usr/local/bin/raspibotsysctl"
-service="raspibot.service"
-user=$(echo $USER)
+INSTALLDIR="/opt/raspibot-setup"
+BOTPATH="$INSTALLDIR/raspibot"
+BOTPATH_BAK="$BOTPATH-bak"
+TORRENTENDPATH="/opt/torrentsend"
+TORRENTSFILE="$TORRENTENDPATH/torrentsended"
+AMBILIGHT="boblight-dispmanx"
+TORRENTALERTSCRIPT="/usr/bin/torrent-finished.sh"
+RESTARTSCRIPT="/usr/local/bin/restartraspibot.sh"
+RASPIBOTSYSCTL_FILE="/usr/local/bin/raspibotsysctl"
+RASPIBOT_SERVICE="raspibot.service"
+SYS_USER=$(echo $USER)
 
 function update_bot {
-	cd # Va a /home/$user
-	mv $botpath $botpath_bak
-	git clone https://github.com/alhenx/raspibot.git $botpath --quiet
-	echo "Configurando RaspiBot..."
-	cp -r $botpath_bak/config $botpath
-	cp -r $botpath_bak/tmp $botpath
-	touch $botpath/tmp/update
+	cd # Va a /home/$SYS_USER
+	mv $BOTPATH $BOTPATH_BAK
+	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet
+
+	echo "Identificando sistema operativo y gestor de paquetes..."
+	declare -A osInfo;
+	osInfo[/etc/arch-release]=pacman
+	osInfo[/etc/debian_version]=apt-get
+
+	for f in ${!osInfo[@]}
+	do
+	    if [[ -f $f ]];then
+	    		SYSTEM_PM=${osInfo[$f]}
+	        echo "El gestor de paquetes de su sistema es $SYSTEM_PM."
+	    fi
+	done
+
+	case $SYSTEM_PM in
+		pacman)
+			PM_INSTALL="$SYSTEM_PM -S --noconfirm"
+			PM_CHECK="$SYSTEM_PM -Q --noconfirm"
+			TORRENTSERVICEPKG="transmission-cli"
+			TORRENTCTL="transmission"
+			TORRENTSERVICESETTINGS="/var/lib/transmission/.config/transmission-daemon/settings.json"
+		;;
+		apt-get)
+			PM_INSTALL="$SYSTEM_PM install -y"
+			PM_CHECK="apt-cache policy"
+			TORRENTSERVICEPKG="transmission-daemon"
+			TORRENTCTL="transmission-daemon"
+			TORRENTSERVICESETTINGS="/var/lib/transmission-daemon/.config/transmission-daemon/settings.json"
+		;;
+	esac
+
+	echo "Configurando nueva versión..."
+	cp -r $BOTPATH_BAK/config $BOTPATH
+	cp -r $BOTPATH_BAK/tmp $BOTPATH
+	touch $BOTPATH/tmp/update
 	echo "Eliminando versiones anteriores..."
-	rm -rf $botpath_bak
-	oldexecfile="$botpath_bak/raspibot.sh"
-	if [ -f $oldexecfile ] ; then
-		rm -f $oldexecfile
-		if [ ! -f /bin/raspibot ] ; then
-			sudo ln -s $botpath/bin/raspibot /bin/raspibot
+	rm -rf $BOTPATH_BAK
+	if [ -f $RESTARTSCRIPT ] ; then
+		sudo rm -f $RESTARTSCRIPT >/dev/null 2>&1
+		sudo sed -i '\^'"$RESTARTSCRIPT"'^d' /etc/sudoers
+	fi
+	if [ ! -f $BOTPATH/config/torrentuser ] ; then
+		echo -e "\nComprobando si cuenta con $TORRENTSERVICEPKG en el sistema..."
+		if (eval sudo $PM_CHECK $TORRENTSERVICEPKG >/dev/null 2>&1) ; then
+			echo "Se ha detectado $TORRENTSERVICEPKG instalado en el sistema."
+
+			if [[ $TORRENTSERVICEPKG == "transmission-daemon" ]]; then
+				if (eval sudo $PM_CHECK transmission-cli >/dev/null 2>&1) ; then
+					sudo $PM_INSTALL transmission-cli >/dev/null
+				fi
+			fi
+
+			echo "A continuación es necesario introducir el usuario y contraseña"
+			echo "del servicio para $TORRENTSERVICEPKG web. Introduzca su usuario:"
+			read TORRENTUSER
+
+			echo -e "\nIntroduzca la contraseña:"
+			read TORRENTPASS
+
+			echo "Se añadirá este servicio a la lista de alertas de RaspiBot."
+
+			sudo sed -i 's^"script-torrent-done-enabled": false,^"script-torrent-done-enabled": true,^g' $TORRENTSERVICESETTINGS
+			sudo sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPT"'",^g' $TORRENTSERVICESETTINGS
+
+			echo -e '#!/bin/sh' | sudo tee $TORRENTALERTSCRIPT >/dev/null
+			echo -e 'torrentsalertfile="'"$TORRENTSFILE"'"' | sudo tee --append $TORRENTALERTSCRIPT >/dev/null
+			echo -e 'echo $TR_TORRENT_NAME > $torrentsalertfile' | sudo tee --append $TORRENTALERTSCRIPT >/dev/null
+			echo -e "exit 0" | sudo tee --append $TORRENTALERTSCRIPT >/dev/null
+
+			sudo systemctl reload $TORRENTCTLPKG
+
+			sudo chmod a+x $TORRENTALERTSCRIPT
+			echo -n $TORRENTUSER > $BOTPATH/config/torrentuser
+			echo -n $TORRENTPASS > $BOTPATH/config/torrentpass
 		fi
-		sudo systemctl stop $service
-		sudo sed -i 's^ExecStart='"$execfile"'^ExecStart=/bin/raspibot exec^g' /usr/lib/systemd/system/$service
-		sudo systemctl start $service
 	fi
-	if [ -f $restartscript ] ; then
-		sudo rm -f $restartscript >/dev/null 2>&1
-		sudo sed -i '\^'"$restartscript"'^d' /etc/sudoers
-	fi
-	if [ ! -f $botpath/config/torrentuser ] ; then
-		echo "Se ha detectado $torrent instalado en el sistema, pero no"
-		echo "está configurado para utilizarse mediante RaspiBot."
-		echo "A continuación es necesario introducir el usuario y contraseña"
-		echo "del servicio para $torrent web. Introduzca su usuario:"
-		read torrentuser
-
-		echo -e "\nIntroduzca la contraseña:"
-		read torrentpass
-
-		echo -n $torrentuser > $botpath/config/torrentuser
-		echo -n $torrentpass > $botpath/config/torrentpass
-	fi
-	if [ ! -f $raspibotsysctl ] ; then
-		sudo ln -s $botpath/bin/raspibotsysctl $raspibotsysctl
+	if [ ! -f $RASPIBOTSYSCTL_FILE ] ; then
+		sudo ln -s $BOTPATH/bin/raspibotsysctl $RASPIBOTSYSCTL_FILE
 	fi
 	raspibot restart
 	echo "Actualización completada."
 }
+######################
+#END update_bot
 
-keepon=true
+KEEPON=true
 
-while $keepon ;
+while $KEEPON ;
 do
 	echo -e "**************************************************"
 	echo -e "******* RaspiBot Beta Bermellón (de China) *******"
@@ -76,179 +116,235 @@ do
 	echo -e "\t2. Actualización de RaspiBot."
 	echo -e "\t3. Desinstalación de RaspiBot."
 	echo -e "\t4. Salir."
-	read x
-		case $x in
+	read X
+		case $X in
 			1)
 				echo "******* INSTALACIÓN SELECCIONADA *******"
+				echo "Identificando sistema operativo y gestor de paquetes..."
+				declare -A osInfo;
+				osInfo[/etc/arch-release]=pacman
+				osInfo[/etc/debian_version]=apt-get
+
+				for f in ${!osInfo[@]}
+				do
+				    if [[ -f $f ]];then
+				    		SYSTEM_PM=${osInfo[$f]}
+				        echo "El gestor de paquetes de su sistema es $SYSTEM_PM."
+				    fi
+				done
+
+				case $SYSTEM_PM in
+					pacman)
+						PM_UPDATE="$SYSTEM_PM -Syy --noconfirm"
+						PM_INSTALL="$SYSTEM_PM -S --noconfirm"
+						PM_CHECK="$SYSTEM_PM -Q --noconfirm"
+						SYSTEMD_DIR="/usr/lib/systemd/system/"
+						TORRENTSERVICEPKG="transmission-cli"
+						TORRENTCTL="transmission"
+						TORRENTSERVICESETTINGS="/var/lib/transmission/.config/transmission-daemon/settings.json"
+					;;
+					apt-get)
+						PM_UPDATE="$SYSTEM_PM update -y"
+						PM_INSTALL="$SYSTEM_PM install -y"
+						PM_CHECK="apt-cache policy"
+						SYSTEMD_DIR="/lib/systemd/system/"
+						TORRENTSERVICEPKG="transmission-daemon"
+						TORRENTCTL="transmission-daemon"
+						TORRENTSERVICESETTINGS="/var/lib/transmission-daemon/.config/transmission-daemon/settings.json"
+					;;
+				esac
+
 				echo "Comenzando proceso de instalación..."
-				cd # Va a /home/$user
+				cd # Va a /home/$SYS_USER
 				echo "Sincronizando las bases de datos de los paquetes..."
-				#Hay que cambiar para OSMC
-				#sudo pacman -Syy >/dev/null
+				eval sudo $PM_UPDATE >/dev/null
 
 				echo "Comprobando paquetes necesarios del sistema."
-				pypkg="python"
-				pippkg="python-pip"
+				PY_PKG="python"
+				PIP_PKG="python-pip"
 				#hay que rehacer
-				#if !(sudo pacman -Q $pypkg >/dev/null 2>&1) ; then
-				#	echo "Instalando $pypkg..."
-				#	sudo pacman -S $pypkg --noconfirm >/dev/null
-				#fi
+				if !(eval sudo $PM_CHECK $PY_PKG >/dev/null 2>&1) ; then
+					echo "Instalando $PY_PKG..."
+					eval sudo $PM_INSTALL $PY_PKG >/dev/null
+				fi
 
-				#if !(sudo pacman -Q $pippkg >/dev/null 2>&1) ; then
-				#	echo "Instalando $pippkg..."
-				#	sudo pacman -S $pippkg --noconfirm >/dev/null
-				#fi
-				
+				if !(eval sudo $PM_CHECK $PIP_PKG >/dev/null 2>&1) ; then
+					echo "Instalando $PIP_PKG..."
+					eval sudo $PM_INSTALL $PIP_PKG >/dev/null
+				fi
+
 				echo "Comprobando módulos pip."
-				pipmodules[0]=pyTelegramBotAPI
-				pipmodules[1]=wikipedia
-				pipmodules[2]=feedparser
+				PIPMODULES[0]=pyTelegramBotAPI
+				PIPMODULES[1]=wikipedia
+				PIPMODULES[2]=feedparser
 
-				for (( i=0; i<${#pipmodules[@]}; i++ ))
+				for (( i=0; i<${#PIPMODULES[@]}; i++ ))
 				do
-					if ! pip list | grep ${pipmodules[$i]} >/dev/null ; then
-						echo "Instalando módulo ${pipmodules[$i]}..."
-						sudo pip install ${pipmodules[$i]} >/dev/null
+					if ! pip list | grep ${PIPMODULES[$i]} >/dev/null ; then
+						echo "Instalando módulo ${PIPMODULES[$i]}..."
+						sudo pip install ${PIPMODULES[$i]} >/dev/null
 					fi
 				done
 
 				echo "Creando directorios necesarios para la instalación..."
-				sudo mkdir -p $installdir
-				sudo mkdir -p $torrentendpath
-				sudo chmod a+wx $installdir
-				sudo chmod a+wx $torrentendpath
+				sudo mkdir -p $INSTALLDIR
+				sudo mkdir -p $TORRENTENDPATH
+				sudo chmod a+wx $INSTALLDIR
+				sudo chmod a+wx $TORRENTENDPATH
 
 				echo "Instalando RaspiBot..."
-				git clone https://github.com/alhenx/raspibot.git $botpath --quiet
+				git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet
 
 				echo "A continuación se configurarán algunos archivos..."
-				mkdir $botpath/tmp
+				mkdir $BOTPATH/tmp
 
-				token_bot=
-				while [[ $token_bot == "" ]]; do
+				TOKEN_BOT_FILE=
+				while [[ $TOKEN_BOT_FILE == "" ]]; do
 					echo "Por favor, introduzca el API_TOKEN (no puede dejarse en blanco)"
 					echo "de su Bot (se la facilitará @BotFather al crear su Bot):"
-					read token_bot
+					read TOKEN_BOT_FILE
 				done
 
-				chat_id=
-				while [[ $chat_id == "" ]]; do
+				CHAT_ID_FILE=
+				while [[ $CHAT_ID_FILE == "" ]]; do
 					echo -e "\nPor favor, introduzca su CHAT_ID (no puede dejarse en blanco)."
 					echo "Si no tiene uno, o no lo recuerda, póngase en contacto con @CabashiBot"
 					echo "mediante Telegram, y envíele el comando '/chatid' (sin las comillas)."
-					read chat_id
+					read CHAT_ID_FILE
 				done
 
-				echo -e "\nComprobando si cuenta con $ambilight en el sistema..."
-				ambi_path=$(find / -type f -name $ambilight 2>&1 | grep -v 'find:')
+				echo -e "\nComprobando si cuenta con $AMBILIGHT en el sistema..."
+				AMBI_PATH_FILE=$(find / -type f -name $AMBILIGHT 2>&1 | grep -v 'find:')
 
-				mkdir $botpath/config
+				mkdir $BOTPATH/config
 
-				echo -n $token_bot > $botpath/config/token_bot
-				echo -n $chat_id > $botpath/config/chat_id
+				echo -n $TOKEN_BOT_FILE > $BOTPATH/config/token_bot
+				echo -n $CHAT_ID_FILE > $BOTPATH/config/chat_id
 
-				if [ $(echo $ambi_path | wc -l) == 1 -a $(echo $ambi_path) != "" ] ; then
-					echo -n $ambi_path > $botpath/config/ambi_path
+				if [ $(echo $AMBI_PATH_FILE | wc -l) == 1 -a $(echo $AMBI_PATH_FILE) != "" ] ; then
+					echo -n $AMBI_PATH_FILE > $BOTPATH/config/ambi_path
 				else
-					echo -n "NOPE" > $botpath/config/ambi_path
+					echo -n "NOPE" > $BOTPATH/config/ambi_path
 				fi
 
-				sudo chmod 444 $botpath/config/*
+				sudo chmod 444 $BOTPATH/config/*
 
-				echo -e "\nComprobando si cuenta con $torrent en el sistema..."
-				#if (sudo pacman -Q $torrent >/dev/null 2>&1) ; then
-				if (sudo apt-cache policy $torrent >/dev/null 2>&1) ; then
-					echo "Se ha detectado $torrent instalado en el sistema."
+				echo -e "\nComprobando si cuenta con $TORRENTSERVICEPKG en el sistema..."
+				if (eval sudo $PM_CHECK $TORRENTSERVICEPKG >/dev/null 2>&1) ; then
+					echo "Se ha detectado $TORRENTSERVICEPKG instalado en el sistema."
+
+					if [[ $TORRENTSERVICEPKG == "transmission-daemon" ]]; then
+						if (eval sudo $PM_CHECK transmission-cli >/dev/null 2>&1) ; then
+							sudo $PM_INSTALL transmission-cli >/dev/null
+						fi
+					fi
+
 					echo "A continuación es necesario introducir el usuario y contraseña"
-					echo "del servicio para $torrent web. Introduzca su usuario:"
-					read torrentuser
+					echo "del servicio para $TORRENTSERVICEPKG web. Introduzca su usuario:"
+					read TORRENTUSER
 
 					echo -e "\nIntroduzca la contraseña:"
-					read torrentpass
+					read TORRENTPASS
 
 					echo "Se añadirá este servicio a la lista de alertas de RaspiBot."
 
-					sudo sed -i 's^"script-torrent-done-enabled": false,^"script-torrent-done-enabled": true,^g' $torrentsettings
-  				sudo sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$torrentalertscript"'",^g' $torrentsettings
+					sudo sed -i 's^"script-torrent-done-enabled": false,^"script-torrent-done-enabled": true,^g' $TORRENTSERVICESETTINGS
+  				sudo sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPT"'",^g' $TORRENTSERVICESETTINGS
 
-  				echo -e '#!/bin/bash' | sudo tee $torrentalertscript >/dev/null
-  				echo -e 'torrentsalertfile="'"$torrentsfile"'"' | sudo tee --append $torrentalertscript >/dev/null
-  				echo -e 'echo $TR_TORRENT_NAME > $torrentsalertfile' | sudo tee --append $torrentalertscript >/dev/null
-  				echo -e "exit 0" | sudo tee --append $torrentalertscript >/dev/null
+  				echo -e '#!/bin/sh' | sudo tee $TORRENTALERTSCRIPT >/dev/null
+  				echo -e 'torrentsalertfile="'"$TORRENTSFILE"'"' | sudo tee --append $TORRENTALERTSCRIPT >/dev/null
+  				echo -e 'echo $TR_TORRENT_NAME > $torrentsalertfile' | sudo tee --append $TORRENTALERTSCRIPT >/dev/null
+  				echo -e "exit 0" | sudo tee --append $TORRENTALERTSCRIPT >/dev/null
 
-  				sudo systemctl reload transmission
+  				sudo systemctl reload $TORRENTCTLPKG
 
-  				sudo chmod a+x $torrentalertscript
-  				echo -n $torrentuser > $botpath/config/torrentuser
-					echo -n $torrentpass > $botpath/config/torrentpass
+  				sudo chmod a+x $TORRENTALERTSCRIPT
+  				echo -n $TORRENTUSER > $BOTPATH/config/torrentuser
+					echo -n $TORRENTPASS > $BOTPATH/config/torrentpass
 				fi
 
-				echo -e "#!/bin/bash" | sudo tee $restartscript >/dev/null
-				echo -e "/usr/bin/systemctl restart $service" | sudo tee --append $restartscript >/dev/null
-				sudo chmod 500 $restartscript
-				echo -e "$user ALL=(ALL) NOPASSWD: $restartscript" | sudo tee --append /etc/sudoers >/dev/null
+				sudo ln -s $BOTPATH/bin/raspibot /bin/raspibot
 
-				sudo ln -s $botpath/bin/raspibot /bin/raspibot
+				echo "[Unit]" > $BOTPATH/$RASPIBOT_SERVICE
+				echo "Description=RaspiBot for Telegram" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "[Service]" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "User=$SYS_USER" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "Type=oneshot" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "ExecStart=/bin/raspibot exec" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "TimeoutSec=0" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "RemainAfterExit=yes" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "[Install]" >> $BOTPATH/$RASPIBOT_SERVICE
+				echo "WantedBy=multi-user.target" >> $BOTPATH/$RASPIBOT_SERVICE
 
-				echo "[Unit]" > $botpath/$service
-				echo "Description=RaspiBot for Telegram" >> $botpath/$service
-				echo "" >> $botpath/$service
-				echo "[Service]" >> $botpath/$service
-				echo "User=$user" >> $botpath/$service
-				echo "Type=oneshot" >> $botpath/$service
-				echo "ExecStart=/bin/raspibot exec" >> $botpath/$service
-				echo "TimeoutSec=0" >> $botpath/$service
-				echo "RemainAfterExit=yes" >> $botpath/$service
-				echo "" >> $botpath/$service
-				echo "[Install]" >> $botpath/$service
-				echo "WantedBy=multi-user.target" >> $botpath/$service
+				sudo mv $BOTPATH/$RASPIBOT_SERVICE $SYSTEMD_DIR
 
-				sudo mv $botpath/$service /usr/lib/systemd/system/
+				sudo systemctl enable $RASPIBOT_SERVICE
 
-				sudo systemctl enable $service
-
-				sudo systemctl start $service
+				sudo systemctl start $RASPIBOT_SERVICE
 
 				echo -e "\nSe ha creado, activado e iniciado el servicio 'raspibot'."
 				echo "Puede consultar su estado con 'raspibot status'. Para ver más opciones,"
 				echo "utilice 'raspibot help'."
 				echo "Proceso de instalación completado. RaspiBot instalado."
-				keepon=false
+				KEEPON=false
 			;;
 			### END CASE 1
 			2)
 				echo "******* ACTUALIZACIÓN SELECCIONADA *******"
 				echo "Comprobando actualizaciones..."
-				localversion=$(cat $botpath/version)
-				remoteversion=$(curl -s https://raw.githubusercontent.com/alhenx/raspibot/master/version)
-				if [ "$localversion" != "$remoteversion" ]; then
+				LOCALVERSION=$(cat $BOTPATH/version)
+				REMOTEVERSION=$(curl -s https://raw.githubusercontent.com/alhenx/raspibot/master/version)
+				if [ "$LOCALVERSION" != "$REMOTEVERSION" ]; then
 					echo "Existe una nueva versión de RaspiBot. Actualizando..."
 					update_bot # Utiliza la función update_bot.
 				else
 					echo "No hay actualizaciones disponibles para RaspiBot."
 				fi
-				keepon=false
+				KEEPON=false
 			;;
 			### END CASE 2
 			3)
 				echo "******* DESINSTALACIÓN SELECCIONADA *******"
 				echo "Comenzando proceso de desinstalación..."
-				cd # Va a /home/$user
-				sudo rm -rf $installdir >/dev/null 2>&1
-				sudo rm -rf $torrentendpath > /dev/null 2>&1
-				sudo systemctl stop $service >/dev/null 2>&1
-				sudo systemctl disable $service >/dev/null 2>&1
-				sudo rm /usr/lib/systemd/system/$service >/dev/null 2>&1
+				cd # Va a /home/$SYS_USER
+				echo "Identificando sistema operativo y gestor de paquetes..."
+				declare -A osInfo;
+				osInfo[/etc/arch-release]=pacman
+				osInfo[/etc/debian_version]=apt-get
+
+				for f in ${!osInfo[@]}
+				do
+				    if [[ -f $f ]];then
+				    		SYSTEM_PM=${osInfo[$f]}
+				        echo "El gestor de paquetes de su sistema es $SYSTEM_PM."
+				    fi
+				done
+
+				case $SYSTEM_PM in
+					pacman)
+						SYSTEMD_DIR="/usr/lib/systemd/system/"
+					;;
+					apt-get)
+						SYSTEMD_DIR="/lib/systemd/system/"
+					;;
+				esac
+
+				sudo rm -rf $INSTALLDIR >/dev/null 2>&1
+				sudo rm -rf $TORRENTENDPATH > /dev/null 2>&1
+				sudo systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1
+				sudo systemctl disable $RASPIBOT_SERVICE >/dev/null 2>&1
+				sudo rm -f $SYSTEMD_DIR$RASPIBOT_SERVICE >/dev/null 2>&1
 				sudo rm -f /bin/raspibot >/dev/null 2>&1
-				sudo rm -f $restartscript >/dev/null 2>&1
-				sudo sed -i '\^'"$restartscript"'^d' /etc/sudoers
+				sudo rm -f $RESTARTSCRIPT >/dev/null 2>&1
+				sudo sed -i '\^'"$RESTARTSCRIPT"'^d' /etc/sudoers
 				echo "Desinstalación completada."
-				keepon=false
+				KEEPON=false
 			;;
 			### END CASE 3
 			4)
-				keepon=false
+				KEEPON=false
 				echo "Saliendo..."
 			;;
 			*)
