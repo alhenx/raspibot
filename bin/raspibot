@@ -7,45 +7,13 @@ TORRENTENDPATH="/opt/torrentsend"
 TORRENTSFILE="$TORRENTENDPATH/torrentsended"
 AMBILIGHT="boblight-dispmanx"
 TORRENTALERTSCRIPT="/usr/bin/torrent-finished.sh"
-RESTARTSCRIPT="/usr/local/bin/restartraspibot.sh"
 RASPIBOTSYSCTL_FILE="/usr/local/bin/raspibotsysctl"
-RASPIBOT_SERVICE="raspibot.service"
-SYS_USER=$(echo $USER)
+TORRENTSERVICESETTINGS="/var/lib/transmission-daemon/.config/transmission-daemon/settings.json"
 
 function update_bot {
-	cd # Va a /home/$SYS_USER
+	cd # Va a /home
 	mv $BOTPATH $BOTPATH_BAK
 	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet
-
-	echo "Identificando sistema operativo y gestor de paquetes..."
-	declare -A osInfo;
-	osInfo[/etc/arch-release]=pacman
-	osInfo[/etc/debian_version]=apt-get
-
-	for f in ${!osInfo[@]}
-	do
-	    if [[ -f $f ]];then
-	    		SYSTEM_PM=${osInfo[$f]}
-	        echo "El gestor de paquetes de su sistema es $SYSTEM_PM."
-	    fi
-	done
-
-	case $SYSTEM_PM in
-		pacman)
-			PM_INSTALL="$SYSTEM_PM -S --noconfirm"
-			PM_CHECK="$SYSTEM_PM -Q --noconfirm"
-			TORRENTSERVICEPKG="transmission-cli"
-			TORRENTCTL="transmission"
-			TORRENTSERVICESETTINGS="/var/lib/transmission/.config/transmission-daemon/settings.json"
-		;;
-		apt-get)
-			PM_INSTALL="$SYSTEM_PM install -y"
-			PM_CHECK="apt-cache policy"
-			TORRENTSERVICEPKG="transmission-daemon"
-			TORRENTCTL="transmission-daemon"
-			TORRENTSERVICESETTINGS="/var/lib/transmission-daemon/.config/transmission-daemon/settings.json"
-		;;
-	esac
 
 	echo "Configurando nueva versión..."
 	cp -r $BOTPATH_BAK/config $BOTPATH
@@ -53,23 +21,17 @@ function update_bot {
 	touch $BOTPATH/tmp/update
 	echo "Eliminando versiones anteriores..."
 	rm -rf $BOTPATH_BAK
-	if [ -f $RESTARTSCRIPT ] ; then
-		sudo rm -f $RESTARTSCRIPT >/dev/null 2>&1
-		sudo sed -i '\^'"$RESTARTSCRIPT"'^d' /etc/sudoers
-	fi
 	if [ ! -f $BOTPATH/config/torrentuser ] ; then
-		echo -e "\nComprobando si cuenta con $TORRENTSERVICEPKG en el sistema..."
-		if (eval sudo $PM_CHECK $TORRENTSERVICEPKG >/dev/null 2>&1) ; then
-			echo "Se ha detectado $TORRENTSERVICEPKG instalado en el sistema."
+		echo -e "\nComprobando si cuenta con transmission-daemon en el sistema..."
+		if (eval sudo apt-cache policy transmission-daemon >/dev/null 2>&1) ; then
+			echo "Se ha detectado transmission-daemon instalado en el sistema."
 
-			if [[ $TORRENTSERVICEPKG == "transmission-daemon" ]]; then
-				if (eval sudo $PM_CHECK transmission-cli >/dev/null 2>&1) ; then
-					sudo $PM_INSTALL transmission-cli >/dev/null
-				fi
+			if !(eval sudo apt-cache policy transmission-cli >/dev/null 2>&1) ; then
+				sudo apt-get install -y transmission-cli >/dev/null
 			fi
 
 			echo "A continuación es necesario introducir el usuario y contraseña"
-			echo "del servicio para $TORRENTSERVICEPKG web. Introduzca su usuario:"
+			echo "del servicio para transmission-daemon web. Introduzca su usuario:"
 			read TORRENTUSER
 
 			echo -e "\nIntroduzca la contraseña:"
@@ -85,13 +47,14 @@ function update_bot {
 			echo -e 'echo $TR_TORRENT_NAME > $torrentsalertfile' | sudo tee --append $TORRENTALERTSCRIPT >/dev/null
 			echo -e "exit 0" | sudo tee --append $TORRENTALERTSCRIPT >/dev/null
 
-			sudo systemctl reload $TORRENTCTLPKG
+			sudo /usr/bin/systemctl reload transmission-daemon
 
 			sudo chmod a+x $TORRENTALERTSCRIPT
 			echo -n $TORRENTUSER > $BOTPATH/config/torrentuser
 			echo -n $TORRENTPASS > $BOTPATH/config/torrentpass
 		fi
 	fi
+
 	if [ ! -f $RASPIBOTSYSCTL_FILE ] ; then
 		sudo ln -s $BOTPATH/bin/raspibotsysctl $RASPIBOTSYSCTL_FILE
 	fi
@@ -135,7 +98,7 @@ if [ "$1" != "" ]; then
 			python /opt/raspibot-setup/raspibot/raspibot.py &
 		;;
 		"help")
-			echo "Uso: rasipbot [opción]"
+			echo "Uso: raspibot [opción]"
 			echo "Las opciones disponbiles son:"
 			echo -e "\t start - Inicia el servicio de RaspiBot."
 			echo -e "\t stop - Para el servicio de RaspiBot."
