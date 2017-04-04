@@ -1,6 +1,0 @@
-#!/bin/sh
-
-TORR_USER=$(cat /opt/raspibot-setup/raspibot/config/torrentuser)
-TORR_PASS=$(cat /opt/raspibot-setup/raspibot/config/torrentpass)
-
-transmission-remote -n $TORR_USER:$TORR_PASS -l | sed -e '1d;$d;s/^ *//' | awk '{print $1 "\t" substr($0,index($0,$10))}'
