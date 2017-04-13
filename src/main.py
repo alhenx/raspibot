@@ -5,6 +5,7 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 import json
+from lib import stats
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -17,11 +18,12 @@ jsonFile = "/opt/raspibot/"
 def chatid(bot, update):
 	update.message.reply_text(quote=True, text=update.message.chat_id)
 
+def getStats(bot, update):
+	update.message.reply_text(quote=True, text="<code>"+stats.stats()+"</code>", parse_mode="HTML")
+
 def response(bot, update):
-	if (update.message.text=="token"):
-		with open(jsonFile+'data.json') as json_data:
-			d = json.load(json_data)
-		update.message.reply_text(quote=True, text=d["token"])
+	if (update.message.text=="hola"):
+		update.message.reply_text(quote=True, text="adios")
 
 def error(bot, update, error):
 	logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -36,6 +38,9 @@ def main():
 
 	# ChatID
 	dp.add_handler(CommandHandler("chatid", chatid))
+
+	# Stats
+	dp.add_handler(CommandHandler("stats", getStats))
 
 	# Response
 	dp.add_handler(MessageHandler(Filters.text, response))
