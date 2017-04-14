@@ -1,4 +1,6 @@
 {
-"token": "YOUR TOKEN HERE"
+"token": "YOUR TOKEN HERE",
+"torrent-user": "YOUR TRANSMISSION USER HERE",
+"torrent-pass": "YOUR TRANSMISSION PASSWORD HERE"
 }
 
