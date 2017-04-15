@@ -13,7 +13,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-jsonFile = "/opt/raspibot/"
+jsonFile = "/opt/raspibot-setup/raspibot/"
 
 def chatid(bot, update):
 	update.message.reply_text(quote=True, text=update.message.chat_id)

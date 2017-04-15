@@ -5,7 +5,7 @@
 import os
 import json
 
-jsonFile = "/opt/raspibot/"
+jsonFile = "/opt/raspibot-setup/raspibot/"
 
 with open(jsonFile+'data.json') as json_data:
 	d = json.load(json_data)
