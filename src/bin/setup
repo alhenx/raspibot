@@ -1,5 +1,4 @@
 #!/bin/sh
-
 # Raspibot's setup script.
 # Raúl Díez Sánchez - Alejandro Chacón Peregrino.
 
@@ -9,7 +8,19 @@ RASPIBOTSYSCTL_FILE="/usr/local/bin/raspibotsysctl"
 RASPIBOT_SERVICE="raspibot.service"
 SYS_USER=$(echo $USER)
 
+# function check_dialog {
+# 	if !(sudo apt-cache policy dialog >/dev/null 2>&1) ; then
+# 		echo "Installing pre-requisites (dialog)..."
+# 		sudo apt-get install -y dialog >/dev/null
+# 	fi
+# }
 
+
+echo "Checking up system for 'dialog' package..."
+sleep 0.8
+if !(sudo apt-cache policy dialog >/dev/null 2>&1) ; then
+	sudo apt-get install -y dialog >/dev/null
+fi
 
 CHOICE=$(dialog --title "RaspiBOT setup" --menu "Setup options:" 13 60 4 \
 "01" "Setup RaspiBOT on your system" \
@@ -20,16 +31,35 @@ case $CHOICE in
 	01)
 		dialog --title "Installing RaspiBOT" --infobox "Starting RaspiBOT setup..." 8 60
 		sleep 0.5
-		SUDO_PASS=$(dialog --passwordbox "First of all, I will need your sudo pass" 6 60	 --title "Installing RaspiBOT" 3>&1 1>&2 2>&3)
-		sleep 0.5|dialog --title "Installing RaspiBOT" --gauge "\nUpdating your system and installing some dependencies..." 8 60 5
-		#echo $SUDO_PASS | sudo -kS apt-get update >/dev/null | 
-		sleep 3| dialog --title "Installing RaspiBOT" --gauge "\nUpdating your system and installing some dependencies..." 8 60 20
-		#echo $SUDO_PASS | sudo -kS apt-get install -y python3-pip >/dev/null | 
-		sleep 3| dialog --title "Installing RaspiBOT" --gauge "\nUpdating your system and installing some dependencies..." 8 60 60
-		#echo $SUDO_PASS | sudo -kS apt-get install -y transmission-cli >/dev/null | 
-		sleep 3| dialog --title "Installing RaspiBOT" --gauge "\nUpdating your system and installing some dependencies..." 8 60 95
-		#echo $SUDO_PASS | sudo -kS pip3 install python-telegram-bot >/dev/null | 
-		sleep 1| dialog --title "Installing RaspiBOT" --gauge "\nUpdating your system and installing some dependencies..." 8 60 100
+		SUDO_PASS=$(dialog --passwordbox "First of all, I will need your sudo password. I'll hide it, don't worry ;)" 9 60 --title "RaspiBOT setup" 3>&1 1>&2 2>&3)
+		exitstatus=$?
+		if [ $exitstatus != 1 ]; then
+			APITOKEN=$(dialog --inputbox "Now please, paste here your Bot's API token" 9 60 --title "RaspiBOT setup" 3>&1 1>&2 2>&3)
+			exitstatus=$?
+			if [ $exitstatus != 1 ]; then
+				TORRENTUSER=$(dialog --inputbox "As you know, RaspiBOT integrates with Transmission to offer torrents control (add, list, remove) and notifies when a torrent is completed. Please, enter your Transmission Web's user." 13 60 --title "RaspiBOT setup" 3>&1 1>&2 2>&3)
+				exitstatus=$?
+				if [ $exitstatus != 1 ]; then
+					TORRENTPASS=$(dialog --passwordbox "Good. Finally, enter your Transmission Web's password." 9 60 --title "RaspiBOT setup" 3>&1 1>&2 2>&3)
+					exitstatus=$?
+					if [ $exitstatus != 1 ]; then
+					  sleep 0.5|dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 5
+						echo $SUDO_PASS | sudo -kS apt-get update | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 20
+						echo $SUDO_PASS | sudo -kS apt-get install -y python3-pip | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 60
+						echo $SUDO_PASS | sudo -kS apt-get install -y transmission-cli | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 95
+						echo $SUDO_PASS | sudo -kS pip3 install python-telegram-bot | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 100
+					else
+					  dialog --title "RaspiBOT setup" --msgbox "Installation canceled." 8 60
+					fi
+				else
+				  dialog --title "RaspiBOT setup" --msgbox "Installation canceled." 8 60
+				fi
+			else
+			  dialog --title "RaspiBOT setup" --msgbox "Installation canceled." 8 60
+			fi
+		else
+		  dialog --title "RaspiBOT setup" --msgbox "Installation canceled." 8 60
+		fi
 
 	;;
 	### END CASE 1
