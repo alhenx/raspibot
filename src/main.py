@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-jsonFile = os.getcwd()
+jsonFile = "/opt/raspibot-setup/raspibot/"
 
 def build_menu(buttons,
                n_cols: int):

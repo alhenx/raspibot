@@ -1,0 +1,4 @@
+#!/bin/sh
+TORRENTSALERTFILE="/opt/torrentsend/torrentsended"
+echo $TR_TORRENT_NAME > $TORRENTSALERTFILE
+exit 0

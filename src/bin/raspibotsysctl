@@ -1,0 +1,25 @@
+#!/bin/sh
+
+SERVICE="raspibot.service"
+
+if [ "$1" != "" ]; then
+	case $1 in
+		"start")
+			/bin/systemctl start $SERVICE
+		;;
+		"stop")
+			/bin/systemctl stop $SERVICE
+		;;
+		"restart")
+			/bin/systemctl restart $SERVICE
+		;;
+		"status")
+			/bin/systemctl status $SERVICE
+		;;
+		*)
+			echo "Unknown operation '$1'."
+		;;
+	esac
+else
+	echo "How to use: raspibotsysctl start|stop|restart|status ."
+fi
