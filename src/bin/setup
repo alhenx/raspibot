@@ -78,8 +78,7 @@ case $CHOICE in
 	  				sleep 0.15
 	  				echo $SUDO_PASS | sudo -kS /usr/bin/systemctl enable $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 60
 	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS /usr/bin/systemctl start $RASPIBOT_SERVICE
-	  				| dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 95
+	  				echo $SUDO_PASS | sudo -kS /usr/bin/systemctl start $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 95
 	  				sleep 0.15
 	  				dialog --title "Setup RaspiBOT" --msgbox "\nInstallation finished. A RaspiBOT systemctl service has been activated. You can see its status with 'raspibot status'. To see more options, please use 'raspibot help'." 20 60
 
