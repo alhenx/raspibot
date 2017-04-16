@@ -17,7 +17,7 @@ if [ "$1" != "" ]; then
 			sudo $RASPIBOTSYSCTL_FILE status
 		;;
 		"exec")
-			python3 /opt/raspibot-setup/src/main.py &
+			python3 /opt/raspibot-setup/raspibot/src/main.py &
 		;;
 		"help")
 			echo "How to use: raspibot [option]"
