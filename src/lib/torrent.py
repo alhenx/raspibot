@@ -7,7 +7,7 @@ import json
 
 jsonFile = "/opt/raspibot-setup/raspibot/"
 
-with open(jsonFile+'/data.json') as json_data:
+with open(jsonFile+'data.json') as json_data:
 	d = json.load(json_data)
 	userTorrent = d["torrent-user"]
 	passTorrent = d["torrent-pass"]
@@ -31,9 +31,8 @@ def addTorrent(torrentLink):
 	cmd = "transmission-remote -n "+userTorrent+":"+passTorrent+" -a \""+torrentLink+"\""
 	responseTransmission = os.popen(cmd).read()
 	if responseTransmission.startswith('Error'):
-		responseTransmission = "Magnet invalido"
-		return responseTransmission
-	return "Torrent added"
+		return 0
+	return 1
 
 def delTorrent(torrentId):
 	cmd = "transmission-remote -n "+userTorrent+":"+passTorrent+" -t "+torrentId+" -r"
