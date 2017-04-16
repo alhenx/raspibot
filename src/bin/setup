@@ -74,9 +74,13 @@ case $CHOICE in
 	  				sleep 0.15
 	  				echo $SUDO_PASS | sudo -kS chmod a+rx /bin/raspibot | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 30
 	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS cp $BOTPATHBIN/$RASPIBOT_SERVICE $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 45
+	  				echo $SUDO_PASS | sudo -kS ln -s $BOTPATHBIN/raspibotsysctl $RASPIBOTSYSCTL_FILE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 45
 	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS /bin/systemctl enable $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 60
+	  				echo $SUDO_PASS | sudo -kS chmod a+rx $RASPIBOTSYSCTL_FILE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 55
+	  				sleep 0.15
+	  				echo $SUDO_PASS | sudo -kS cp $BOTPATHBIN/$RASPIBOT_SERVICE $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 65
+	  				sleep 0.15
+	  				echo $SUDO_PASS | sudo -kS /bin/systemctl enable $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 80
 	  				sleep 0.15
 	  				echo $SUDO_PASS | sudo -kS /bin/systemctl start $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 95
 	  				sleep 0.15
