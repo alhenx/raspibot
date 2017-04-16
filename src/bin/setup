@@ -76,9 +76,9 @@ case $CHOICE in
 	  				sleep 0.15
 	  				echo $SUDO_PASS | sudo -kS cp $BOTPATHBIN/$RASPIBOT_SERVICE $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 45
 	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS /usr/bin/systemctl enable $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 60
+	  				echo $SUDO_PASS | sudo -kS /bin/systemctl enable $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 60
 	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS /usr/bin/systemctl start $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 95
+	  				echo $SUDO_PASS | sudo -kS /bin/systemctl start $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 95
 	  				sleep 0.15
 	  				dialog --title "Setup RaspiBOT" --msgbox "\nInstallation finished. A RaspiBOT systemctl service has been activated. You can see its status with 'raspibot status'. To see more options, please use 'raspibot help'." 20 60
 
@@ -105,8 +105,8 @@ case $CHOICE in
 		sleep 0.15
 		sudo rm -rf $TORRENTENDPATH > /dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 30
 		sleep 0.15
-		sudo /usr/bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1
-		sudo /usr/bin/systemctl disable $RASPIBOT_SERVICE >/dev/null 2>&1
+		sudo /bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1
+		sudo /bin/systemctl disable $RASPIBOT_SERVICE >/dev/null 2>&1
 		sudo rm -f $SYSTEMD_DIR/$RASPIBOT_SERVICE >/dev/null 2>&1
 		sudo rm -f /bin/raspibot >/dev/null 2>&1
 		echo $SUDO_PASS | sudo -kS sed -i 's^"script-torrent-done-enabled": true,^"script-torrent-done-enabled": false,^g' $TORRENTSERVICESETTINGS | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 60
