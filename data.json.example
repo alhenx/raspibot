@@ -1,6 +1,6 @@
 {
-"token": "$APITOKEN",
-"torrent-user": "$TORRENTUSER",
-"torrent-pass": "$TORRENTPASS"
+"token": "APITOKEN",
+"torrent-user": "TORRENTUSER",
+"torrent-pass": "TORRENTPASS"
 }
 
