@@ -8,6 +8,7 @@ DATAPATH="$BOTPATH/data.json"
 RASPIBOTSYSCTL_FILE="/usr/bin/raspibotsysctl"
 RASPIBOT_SERVICE="raspibot.service"
 SYSTEMD_DIR="/lib/systemd/system"
+SYS_USER=$(echo $USER)
 
 TORRENTENDPATH="/opt/torrentsend"
 TORRENTSFILE="$TORRENTENDPATH/torrentsended"
@@ -79,6 +80,8 @@ case $CHOICE in
 	  				echo $SUDO_PASS | sudo -kS chmod a+rx $RASPIBOTSYSCTL_FILE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 55
 	  				sleep 0.15
 	  				echo $SUDO_PASS | sudo -kS cp $BOTPATHBIN/$RASPIBOT_SERVICE $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 65
+	  				sleep 0.15
+	  				echo $SUDO_PASS | sudo -kS sed -i 's/SYS_USER/'$SYS_USER'/g' $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 75
 	  				sleep 0.15
 	  				echo $SUDO_PASS | sudo -kS /bin/systemctl enable $RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 80
 	  				sleep 0.15

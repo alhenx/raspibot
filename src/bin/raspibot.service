@@ -2,7 +2,7 @@
 Description=RaspiBOT for Telegram
 
 [Service]
-User=$SYS_USER
+User=SYS_USER
 Type=oneshot
 ExecStart=/bin/raspibot exec
 TimeoutSec=0
