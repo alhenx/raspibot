@@ -87,10 +87,9 @@ case $CHOICE in
 	  				sleep 0.15
 	  				echo $SUDO_PASS | sudo -kS /bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 95
 	  				sleep 0.15
+	  				echo $SUDO_PASS | sudo -kS /bin/systemctl daemon-reload >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 100
+	  				sleep 0.15
 	  				dialog --title "Setup RaspiBOT" --msgbox "\nInstallation finished. A RaspiBOT systemctl service has been activated. You can see its status with 'raspibot status'. To see more options, please use 'raspibot help'." 20 60
-
-						#TODO
-						#			update
 
 					fi #TORRENTPASS exitstatus
 				fi #TORRENTUSER exitstatus
@@ -117,10 +116,12 @@ case $CHOICE in
 		sleep 0.15
 		sudo rm -f $SYSTEMD_DIR/$RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 50
 		sleep 0.15
-		sudo rm -f /bin/raspibot >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 55
+		sudo /bin/systemctl daemon-reload | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 55
+		sleep 0.15
+		sudo rm -f /bin/raspibot >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 60
 		sleep 0.15
 		sudo rm -f $RASPIBOTSYSCTL_FILE >/dev/null 2>&1
-		sudo sed -i 's^"script-torrent-done-enabled": true,^"script-torrent-done-enabled": false,^g' $TORRENTSERVICESETTINGS | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 60
+		sudo sed -i 's^"script-torrent-done-enabled": true,^"script-torrent-done-enabled": false,^g' $TORRENTSERVICESETTINGS | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 65
 		sleep 0.15
 		sudo sed -i 's^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPTDST"'",^"script-torrent-done-filename": "",^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 75
 		sleep 0.15

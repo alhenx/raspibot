@@ -3,10 +3,9 @@ Description=RaspiBOT for Telegram
 
 [Service]
 User=SYS_USER
-Type=oneshot
+Type=forking
 ExecStart=/bin/raspibot exec
 TimeoutSec=0
-RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
