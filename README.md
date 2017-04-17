@@ -2,7 +2,7 @@
 RaspiBOT is a Telegram's Bot to control your Raspberry Pi and keep in contact with it.
 
 ## What it does
-RaspiBOT has the follow functionalities:
+RaspiBOT has the following functionalities:
  - Show system's summary stats.
  - Add a torrent to Transmission, using its magnet link.
  - Remove a torrent from Tranmission's active torrents.
