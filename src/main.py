@@ -3,9 +3,10 @@
 #
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler, Job
 import logging
 import json
+import os
 from lib import stats, torrent
 
 # Enable logging
@@ -15,16 +16,24 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 MAGNET = range(1)
+
 jsonFile = "/opt/raspibot-setup/raspibot/"
+alertFile = "/opt/torrentsend/torrentsended"
+
 buttonTorrents = [InlineKeyboardButton(text="Add Torrent", callback_data="torrentAdd"), InlineKeyboardButton(text="Delete Torrent", callback_data="torrentDel"), InlineKeyboardButton(text="Torrent List", callback_data="torrentList")]
 buttonMagnetCancel = [InlineKeyboardButton(text="<< Cancel", callback_data="magnetCancel")]
 
 global chatIdActive
+
 with open(jsonFile+'data.json') as json_data:
 		d = json.load(json_data)
 		updater = Updater(d["token"])
 		chatIdActive = d["chat-id"]
 
+def checkTorrent(bot, job):
+	if os.path.isfile(alertFile):
+		cmd = "cat "+alertFile+"; rm "+alertFile
+		bot.sendMessage(chat_id=chatIdActive, text="Torrent downloaded\n<code>"+os.popen(cmd).read()+"</code>", parse_mode="HTML")
 
 def build_menu(buttons, n_cols: int):
 	menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
@@ -45,7 +54,7 @@ def start(bot, update):
 		if chatIdActive == update.message.chat_id:
 			update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard))
 		else:	
-			update.message.reply_text(text="YOU SHALL NOT PASS")
+			update.message.reply_text(text="YOU SHALL NOT PASS!")
 
 def chatid(bot, update):
 	update.message.reply_text(text=update.message.chat_id)
@@ -61,7 +70,7 @@ def menuTorrents(bot, update):
 def button(bot, update):
 	query = update.callback_query
 	if chatIdActive != query.message.chat_id: return 0
-	
+
 	if query.data.startswith("del"):
 		torrent.delTorrent(query.data[3:])
 		query.message.edit_text(text="Torrente deleted", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
@@ -109,6 +118,11 @@ def getMagnet(bot, update):
 def main():
 
 	dp = updater.dispatcher
+	j = dp.job_queue
+
+	job_minute = Job(checkTorrent, 60.0)
+	j.put(job_minute, next_t=60.0)
+
 
 	# Start
 	dp.add_handler(CommandHandler("start", start))
