@@ -7,7 +7,10 @@ RaspiBOT has the following functionalities:
  - Add a torrent to Transmission, using its magnet link.
  - Remove a torrent from Tranmission's active torrents.
  - List Transmission's active torrents.
+ - Notify Transmission's completed torrents.
  - More to come...
+
+RaspiBOT also comes 'chat_id secured', which means that once you install it and say '/start' to it, it will only respond to you and no one more. That implies that only you could send commands to your RaspiBOT.
 
 ## Installation
 To install RaspiBOT, you only need to execute our setup Bash script (we not recomend using PuTTY to log in to SSH, as we use 'dialog' and stuff goes weird):
