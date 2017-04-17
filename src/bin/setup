@@ -56,7 +56,7 @@ case $CHOICE in
 						echo $SUDO_PASS | sudo -kS chmod a+wx $TORRENTENDPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 40
 						echo $SUDO_PASS | sudo -kS mkdir -p $INSTALLDIR
 						echo $SUDO_PASS | sudo -kS chmod a+wx $INSTALLDIR| dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 50
-						git clone -b setup_dev https://github.com/alhenx/raspibot.git $BOTPATH --quiet | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 80
+						git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 80
 						cp $BOTPATH/data.json.example $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 85
 						sed -i 's/APITOKEN/'$APITOKEN'/g' $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 90
 						sed -i 's/TORRENTUSER/'$TORRENTUSER'/g' $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 95
