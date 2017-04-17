@@ -111,13 +111,18 @@ case $CHOICE in
 		sleep 0.15
 		sudo rm -rf $TORRENTENDPATH > /dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 30
 		sleep 0.15
-		sudo /bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1
-		sudo /bin/systemctl disable $RASPIBOT_SERVICE >/dev/null 2>&1
-		sudo rm -f $SYSTEMD_DIR/$RASPIBOT_SERVICE >/dev/null 2>&1
-		sudo rm -f /bin/raspibot >/dev/null 2>&1
-		echo $SUDO_PASS | sudo -kS sed -i 's^"script-torrent-done-enabled": true,^"script-torrent-done-enabled": false,^g' $TORRENTSERVICESETTINGS | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 60
+		sudo /bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 40
 		sleep 0.15
-		echo $SUDO_PASS | sudo -kS sed -i 's^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPTDST"'",^"script-torrent-done-filename": "",^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 75
+		sudo /bin/systemctl disable $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 45
+		sleep 0.15
+		sudo rm -f $SYSTEMD_DIR/$RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 50
+		sleep 0.15
+		sudo rm -f /bin/raspibot >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 55
+		sleep 0.15
+		sudo rm -f $RASPIBOTSYSCTL_FILE >/dev/null 2>&1
+		sudo sed -i 's^"script-torrent-done-enabled": true,^"script-torrent-done-enabled": false,^g' $TORRENTSERVICESETTINGS | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 60
+		sleep 0.15
+		sudo sed -i 's^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPTDST"'",^"script-torrent-done-filename": "",^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 75
 		sleep 0.15
 		sudo rm -f $TORRENTALERTSCRIPTDST | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 85
 		sleep 0.15
