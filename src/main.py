@@ -19,30 +19,49 @@ jsonFile = "/opt/raspibot-setup/raspibot/"
 buttonTorrents = [InlineKeyboardButton(text="Add Torrent", callback_data="torrentAdd"), InlineKeyboardButton(text="Delete Torrent", callback_data="torrentDel"), InlineKeyboardButton(text="Torrent List", callback_data="torrentList")]
 buttonMagnetCancel = [InlineKeyboardButton(text="<< Cancel", callback_data="magnetCancel")]
 
-def build_menu(buttons,
-			   n_cols: int):
+global chatIdActive
+with open(jsonFile+'data.json') as json_data:
+		d = json.load(json_data)
+		updater = Updater(d["token"])
+		chatIdActive = d["chat-id"]
+
+
+def build_menu(buttons, n_cols: int):
 	menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
 	return menu
 
 def start(bot, update):
 	menuKeyboard = [["STATS"],["TORRENTS"]]
-	update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard))
+	global chatIdActive
+	if chatIdActive == "none":
+		with open(jsonFile+"data.json") as json_data:
+				d = json.load(json_data)
+				d["chat-id"] = update.message.chat_id
+		with open(jsonFile+"data.json", "w") as json_data:
+			json.dump(d, json_data)
+		chatIdActive = update.message.chat_id
+		update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard))
+	else:
+		if chatIdActive == update.message.chat_id:
+			update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard))
+		else:	
+			update.message.reply_text(text="YOU SHALL NOT PASS")
 
 def chatid(bot, update):
 	update.message.reply_text(text=update.message.chat_id)
 
 def getStats(bot, update):
+	if chatIdActive != update.message.chat_id: return 0
 	update.message.reply_text(text="<code>"+stats.stats()+"</code>", parse_mode="HTML")
 
 def menuTorrents(bot, update):
+	if chatIdActive != update.message.chat_id: return 0
 	update.message.reply_text(text="Choose one option", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
-
-def addTorrent(bot, update):
-	update.message.reply_text(text=torrent.addTorrent(update.message.text[12:]))
 
 def button(bot, update):
 	query = update.callback_query
-
+	if chatIdActive != query.message.chat_id: return 0
+	
 	if query.data.startswith("del"):
 		torrent.delTorrent(query.data[3:])
 		query.message.edit_text(text="Torrente deleted", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
@@ -70,6 +89,7 @@ def button(bot, update):
 		return ConversationHandler.END
 
 def response(bot, update):
+	if chatIdActive != update.message.chat_id: return 0
 	if (update.message.text=="STATS"):
 		getStats(bot,update)
 	if (update.message.text=="TORRENTS"):
@@ -86,19 +106,13 @@ def getMagnet(bot, update):
 		update.message.reply_text(text="Torrent added", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
 		return ConversationHandler.END
 
-def cancel(bot, update):
-    return ConversationHandler.END
-
 def main():
-	with open(jsonFile+'data.json') as json_data:
-		d = json.load(json_data)
-		updater = Updater(d["token"])
 
 	dp = updater.dispatcher
 
 	# Start
 	dp.add_handler(CommandHandler("start", start))
-
+	
 	# ChatID
 	dp.add_handler(CommandHandler("chatid", chatid))
 

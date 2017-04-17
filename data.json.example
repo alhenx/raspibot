@@ -1,6 +1,7 @@
 {
 "token": "APITOKEN",
 "torrent-user": "TORRENTUSER",
-"torrent-pass": "TORRENTPASS"
+"torrent-pass": "TORRENTPASS",
+"chat-id": "none"
 }
 
