@@ -73,7 +73,7 @@ def button(bot, update):
 
 	if query.data.startswith("del"):
 		torrent.delTorrent(query.data[3:])
-		query.message.edit_text(text="Torrente deleted", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
+		query.message.edit_text(text="Torrent deleted", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
 
 	if query.data == "torrentList":
 		query.message.edit_text(text="<code>"+str(torrent.getList(0))+"</code>", parse_mode="HTML", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
