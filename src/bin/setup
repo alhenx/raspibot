@@ -1,6 +1,10 @@
 #!/bin/sh
 # RaspiBOT's setup script.
 
+###################################################################
+### SETUP VARS:
+###############
+
 # Program's vars
 INSTALLDIR="/opt/raspibot-setup"
 BOTPATH="$INSTALLDIR/raspibot"
@@ -20,12 +24,141 @@ TORRENTALERTSCRIPTSRC="$BOTPATHBIN/torrent-finished"
 TORRENTALERTSCRIPTDST="/usr/bin/torrent-finished"
 TORRENTSERVICESETTINGS="/var/lib/transmission-daemon/.config/transmission-daemon/settings.json"
 
-# Checks for 'dialog' package on system, needed in this script
+###################################################################
+### SETUP FUNCTIONS:
+####################
+
+# Checks if package $1 is installed.
+####################################
+chk_pkg () {
+	return $(dpkg-query -W -f='${Status}' $1 2>/dev/null | grep -c "ok installed")
+}
+
+# Checks if package $1 is installed. If not, installs it.
+#########################################################
+chk_install_pkg () {
+	if [ $(dpkg-query -W -f='${Status}' $1 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+		sudo apt-get install $1 -y
+	fi
+}
+
+# RaspiBOT's install function.
+##############################
+setup_raspibot () {
+	dialog --title "Installing RaspiBOT" --infobox "Starting RaspiBOT setup..." 8 60
+	sleep 0.5
+	# sudo's password, only used in setup time
+	SUDO_PASS=$(dialog --title "RaspiBOT setup" --passwordbox "First of all, I will need your sudo password. I'll hide it, don't worry ;)" 9 60 3>&1 1>&2 2>&3)
+	exitstatus=$?
+	if [ $exitstatus = 0 ]; then
+		APITOKEN=$(dialog --title "RaspiBOT setup" --inputbox "Now please, paste here your Bot's API token" 9 60 3>&1 1>&2 2>&3)
+		exitstatus=$?
+		if [ $exitstatus = 0 ]; then
+			TORRENTUSER=$(dialog  --title "RaspiBOT setup" --inputbox "As you know, RaspiBOT integrates with Transmission to offer torrents control (add, list, remove) and notifies when a torrent is completed. Please, enter your Transmission Daemon's user." 13 60 3>&1 1>&2 2>&3)
+			exitstatus=$?
+			if [ $exitstatus = 0 ]; then
+				TORRENTPASS=$(dialog  --title "RaspiBOT setup" --passwordbox "Good. Finally, enter your Transmission Daemon's password." 9 60 3>&1 1>&2 2>&3)
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					# Install dependencies (apt & pip)
+				  sleep 0.5|dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 5
+					echo $SUDO_PASS | sudo -kS apt-get update | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 20
+					echo $SUDO_PASS | sudo -kS apt-get install -y python3-pip | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 60
+					echo $SUDO_PASS | sudo -kS apt-get install -y transmission-cli | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 95
+					echo $SUDO_PASS | sudo -kS pip3 install --quiet python-telegram-bot >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 100
+
+					# Mkdirs, chmod & clone git repo
+					echo $SUDO_PASS | sudo -kS mkdir -p $INSTALLDIR | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 15
+					sleep 0.4
+					echo $SUDO_PASS | sudo -kS mkdir -p $TORRENTENDPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 30
+					echo $SUDO_PASS | sudo -kS chmod a+wx $TORRENTENDPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 40
+					echo $SUDO_PASS | sudo -kS mkdir -p $INSTALLDIR
+					echo $SUDO_PASS | sudo -kS chmod a+wx $INSTALLDIR| dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 50
+					git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 80
+
+					# Customizes data.json with user info
+					cp $BOTPATH/data.json.example $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 85
+					sed -i 's/APITOKEN/'$APITOKEN'/g' $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 90
+					sed -i 's/TORRENTUSER/'$TORRENTUSER'/g' $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 95
+					sed -i 's/TORRENTPASS/'$TORRENTPASS'/g' $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 100
+
+					# Configures Transmission daemon, link 'torrent-finished' script and reload
+					echo $SUDO_PASS | sudo -kS ln -s $TORRENTALERTSCRIPTSRC $TORRENTALERTSCRIPTDST >/dev/null | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 10
+					sleep 0.15
+  				echo $SUDO_PASS | sudo -kS chmod a+rx $TORRENTALERTSCRIPTDST | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 30
+  				sleep 0.15
+					echo $SUDO_PASS | sudo -kS sed -i 's^"script-torrent-done-enabled": false,^"script-torrent-done-enabled": true,^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 60
+					sleep 0.15
+					echo $SUDO_PASS | sudo -kS sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPTDST"'",^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 80
+					sleep 0.15
+  				echo $SUDO_PASS | sudo -kS /bin/systemctl reload transmission-daemon | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 100
+  				sleep 0.15
+
+  				# Link binaries, chmod them, enable service
+  				echo $SUDO_PASS | sudo -kS ln -s $BOTPATHBIN/raspibot /bin/raspibot | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 10
+  				sleep 0.15
+  				echo $SUDO_PASS | sudo -kS chmod a+rx /bin/raspibot | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 30
+  				sleep 0.15
+  				echo $SUDO_PASS | sudo -kS ln -s $BOTPATHBIN/raspibotsysctl $RASPIBOTSYSCTL_FILE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 45
+  				sleep 0.15
+  				echo $SUDO_PASS | sudo -kS chmod a+rx $RASPIBOTSYSCTL_FILE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 55
+  				sleep 0.15
+  				echo $SUDO_PASS | sudo -kS ln -s $BOTPATHBIN/$RASPIBOT_SERVICE $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 65
+  				sleep 0.15
+  				echo $SUDO_PASS | sudo -kS sed -i 's/SYS_USER/'$SYS_USER'/g' $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 75
+  				sleep 0.15
+  				echo $SUDO_PASS | sudo -kS /bin/systemctl enable $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 80
+  				sleep 0.15
+  				echo $SUDO_PASS | sudo -kS /bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 95
+  				sleep 0.15
+  				echo $SUDO_PASS | sudo -kS /bin/systemctl daemon-reload >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 100
+  				sleep 0.15
+  				dialog --title "Setup RaspiBOT" --msgbox "\nInstallation finished. A RaspiBOT systemctl service has been activated. You can see its status with 'raspibot status'. To see more options, please use 'raspibot help'." 20 60
+				fi #TORRENTPASS exitstatus
+			fi #TORRENTUSER exitstatus
+		fi #APITOKEN exitstatus
+	fi #SUDO_PASS exitstatus
+} #setup_raspibot
+
+# RaspiBOT's uninstall function.
+################################
+remove_raspibot () {
+	cd
+	sleep 0.5 | dialog --title "Uninstall RaspiBOT" --gauge "\n Removing RaspiBOT from your system..." 8 60 5
+	sleep 0.15
+	sudo rm -rf $INSTALLDIR >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 20
+	sleep 0.15
+	sudo rm -rf $TORRENTENDPATH > /dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 30
+	sleep 0.15
+	sudo /bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 40
+	sleep 0.15
+	sudo /bin/systemctl disable $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 45
+	sleep 0.15
+	sudo rm -f $SYSTEMD_DIR/$RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 50
+	sleep 0.15
+	sudo /bin/systemctl daemon-reload | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 55
+	sleep 0.15
+	sudo rm -f /bin/raspibot >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 60
+	sleep 0.15
+	sudo rm -f $RASPIBOTSYSCTL_FILE >/dev/null 2>&1
+	sudo sed -i 's^"script-torrent-done-enabled": true,^"script-torrent-done-enabled": false,^g' $TORRENTSERVICESETTINGS | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 65
+	sleep 0.15
+	sudo sed -i 's^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPTDST"'",^"script-torrent-done-filename": "",^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 75
+	sleep 0.15
+	sudo rm -f $TORRENTALERTSCRIPTDST | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 85
+	sleep 0.15
+	sudo /bin/systemctl reload transmission-daemon | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 100
+	sleep 0.15
+	dialog --title "Uninstall RaspiBOT" --msgbox "\nUninstall finished." 8 60
+}
+
+###################################################################
+### MAIN:
+####################
+
 echo "Checking up system for 'dialog' package..."
 sleep 0.5
-if !(sudo apt-cache policy dialog >/dev/null 2>&1) ; then
-	sudo apt-get install -y dialog >/dev/null
-fi
+chk_install_pkg dialog
 
 CHOICE=$(dialog --title "RaspiBOT setup" --menu "Setup options:" 13 60 4 \
 "01" "Setup RaspiBOT on your system" \
@@ -35,81 +168,7 @@ CHOICE=$(dialog --title "RaspiBOT setup" --menu "Setup options:" 13 60 4 \
 exitstatus=$?
 case $CHOICE in
 	01)
-		dialog --title "Installing RaspiBOT" --infobox "Starting RaspiBOT setup..." 8 60
-		sleep 0.5
-		# sudo's password, only used in setup time
-		SUDO_PASS=$(dialog --title "RaspiBOT setup" --passwordbox "First of all, I will need your sudo password. I'll hide it, don't worry ;)" 9 60 3>&1 1>&2 2>&3)
-		exitstatus=$?
-		if [ $exitstatus = 0 ]; then
-			APITOKEN=$(dialog --title "RaspiBOT setup" --inputbox "Now please, paste here your Bot's API token" 9 60 3>&1 1>&2 2>&3)
-			exitstatus=$?
-			if [ $exitstatus = 0 ]; then
-				TORRENTUSER=$(dialog  --title "RaspiBOT setup" --inputbox "As you know, RaspiBOT integrates with Transmission to offer torrents control (add, list, remove) and notifies when a torrent is completed. Please, enter your Transmission Daemon's user." 13 60 3>&1 1>&2 2>&3)
-				exitstatus=$?
-				if [ $exitstatus = 0 ]; then
-					TORRENTPASS=$(dialog  --title "RaspiBOT setup" --passwordbox "Good. Finally, enter your Transmission Daemon's password." 9 60 3>&1 1>&2 2>&3)
-					exitstatus=$?
-					if [ $exitstatus = 0 ]; then
-						# Install dependencies (apt & pip)
-					  sleep 0.5|dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 5
-						echo $SUDO_PASS | sudo -kS apt-get update | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 20
-						echo $SUDO_PASS | sudo -kS apt-get install -y python3-pip | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 60
-						echo $SUDO_PASS | sudo -kS apt-get install -y transmission-cli | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 95
-						echo $SUDO_PASS | sudo -kS pip3 install --quiet python-telegram-bot >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nInstalling some dependencies..." 8 60 100
-
-						# Mkdirs, chmod & clone git repo
-						echo $SUDO_PASS | sudo -kS mkdir -p $INSTALLDIR | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 15
-						sleep 0.4
-						echo $SUDO_PASS | sudo -kS mkdir -p $TORRENTENDPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 30
-						echo $SUDO_PASS | sudo -kS chmod a+wx $TORRENTENDPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 40
-						echo $SUDO_PASS | sudo -kS mkdir -p $INSTALLDIR
-						echo $SUDO_PASS | sudo -kS chmod a+wx $INSTALLDIR| dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 50
-						git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 80
-
-						# Customizes data.json with user info
-						cp $BOTPATH/data.json.example $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 85
-						sed -i 's/APITOKEN/'$APITOKEN'/g' $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 90
-						sed -i 's/TORRENTUSER/'$TORRENTUSER'/g' $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 95
-						sed -i 's/TORRENTPASS/'$TORRENTPASS'/g' $DATAPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 100
-
-						# Configures Transmission daemon, link 'torrent-finished' script and reload
-						echo $SUDO_PASS | sudo -kS ln -s $TORRENTALERTSCRIPTSRC $TORRENTALERTSCRIPTDST >/dev/null | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 10
-						sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS chmod a+rx $TORRENTALERTSCRIPTDST | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 30
-	  				sleep 0.15
-						echo $SUDO_PASS | sudo -kS sed -i 's^"script-torrent-done-enabled": false,^"script-torrent-done-enabled": true,^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 60
-						sleep 0.15
-						echo $SUDO_PASS | sudo -kS sed -i 's^"script-torrent-done-filename": "",^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPTDST"'",^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 80
-						sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS /bin/systemctl reload transmission-daemon | dialog --title "Installing RaspiBOT" --gauge "\nConfiguring Transmission..." 8 60 100
-	  				sleep 0.15
-
-	  				# Link binaries, chmod them, enable service
-	  				echo $SUDO_PASS | sudo -kS ln -s $BOTPATHBIN/raspibot /bin/raspibot | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 10
-	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS chmod a+rx /bin/raspibot | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 30
-	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS ln -s $BOTPATHBIN/raspibotsysctl $RASPIBOTSYSCTL_FILE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 45
-	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS chmod a+rx $RASPIBOTSYSCTL_FILE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 55
-	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS ln -s $BOTPATHBIN/$RASPIBOT_SERVICE $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 65
-	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS sed -i 's/SYS_USER/'$SYS_USER'/g' $SYSTEMD_DIR/$RASPIBOT_SERVICE | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 75
-	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS /bin/systemctl enable $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 80
-	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS /bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 95
-	  				sleep 0.15
-	  				echo $SUDO_PASS | sudo -kS /bin/systemctl daemon-reload >/dev/null 2>&1 | dialog --title "Installing RaspiBOT" --gauge "\nFinishing setup..." 8 60 100
-	  				sleep 0.15
-	  				dialog --title "Setup RaspiBOT" --msgbox "\nInstallation finished. A RaspiBOT systemctl service has been activated. You can see its status with 'raspibot status'. To see more options, please use 'raspibot help'." 20 60
-
-					fi #TORRENTPASS exitstatus
-				fi #TORRENTUSER exitstatus
-			fi #APITOKEN exitstatus
-		fi #SUDO_PASS exitstatus
-
+		setup_raspibot
 	;;
 	### END CASE 1 : SETUP
 	02)
@@ -117,33 +176,7 @@ case $CHOICE in
 	;;
 	### END CASE 2 : UPDATE
 	03)
-		cd
-		sleep 0.5 | dialog --title "Uninstall RaspiBOT" --gauge "\n Removing RaspiBOT from your system..." 8 60 5
-		sleep 0.15
-		sudo rm -rf $INSTALLDIR >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 20
-		sleep 0.15
-		sudo rm -rf $TORRENTENDPATH > /dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 30
-		sleep 0.15
-		sudo /bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 40
-		sleep 0.15
-		sudo /bin/systemctl disable $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 45
-		sleep 0.15
-		sudo rm -f $SYSTEMD_DIR/$RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 50
-		sleep 0.15
-		sudo /bin/systemctl daemon-reload | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 55
-		sleep 0.15
-		sudo rm -f /bin/raspibot >/dev/null 2>&1 | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 60
-		sleep 0.15
-		sudo rm -f $RASPIBOTSYSCTL_FILE >/dev/null 2>&1
-		sudo sed -i 's^"script-torrent-done-enabled": true,^"script-torrent-done-enabled": false,^g' $TORRENTSERVICESETTINGS | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 65
-		sleep 0.15
-		sudo sed -i 's^"script-torrent-done-filename": "'"$TORRENTALERTSCRIPTDST"'",^"script-torrent-done-filename": "",^g' $TORRENTSERVICESETTINGS | dialog --title "Installing RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 75
-		sleep 0.15
-		sudo rm -f $TORRENTALERTSCRIPTDST | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 85
-		sleep 0.15
-		sudo /bin/systemctl reload transmission-daemon | dialog --title "Uninstall RaspiBOT" --gauge "\nRemoving RaspiBOT from your system..." 8 60 100
-		sleep 0.15
-		dialog --title "Uninstall RaspiBOT" --msgbox "\nUninstall finished." 8 60
+		remove_raspibot
 	;;
 	### END CASE 3 : REMOVE
 	04)
