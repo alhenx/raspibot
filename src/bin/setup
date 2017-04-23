@@ -57,7 +57,7 @@ setup_raspibot () {
 	sleep 0.5
 	# Checks if transmission-daemon is installed. If not, stops setup.
 	trans_daem_inst=$(chk_pkg transmission-daemon | dialog --title "Installing RaspiBOT" --infobox "Checking if transmission-daemon is installed..." 8 60)
-	if [ $trans_daem_inst = 0 ]; # Not installed, stops setup.
+	if [ $trans_daem_inst = 0 ]; then # Not installed, stops setup.
 		dialog --title "RaspiBOT setup" --msgbox "\nPackage 'transmission-daemon' is not installed. Please, install and configure it before installing RaspiBOT." 8 60
 	else # Installed.
 		dialog --title "Installing RaspiBOT" --infobox "Checking if git is installed..." 8 60
