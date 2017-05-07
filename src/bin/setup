@@ -8,6 +8,7 @@
 # Program's vars
 INSTALLDIR="/opt/raspibot-setup"
 BOTPATH="$INSTALLDIR/raspibot"
+BOTPATH_BAK="$BOTPATH-bak"
 BOTPATHBIN="$BOTPATH/src/bin"
 DATAPATH="$BOTPATH/data.json"
 RASPIBOTSYSCTL_FILE="/usr/bin/raspibotsysctl"
@@ -169,6 +170,25 @@ remove_raspibot () {
 	dialog --title "Uninstall RaspiBOT" --msgbox "\nUninstall finished." 8 60
 }
 
+# RaspiBOT's update function.
+################################
+update_raspibot () {
+	cd
+	sleep 0.5 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 5
+	sleep 0.15
+	sudo /bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 15
+	mv $BOTPATH $BOTPATH_BAK | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 35
+	sleep 0.15
+	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 60
+	sleep 0.15
+	# Customizes data.json with user info
+	cp $BOTPATH_BAK/data.json $DATAPATH | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 75
+	sleep 0.15
+	sudo /bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 95
+	sleep 0.15
+}
+
+
 ###################################################################
 ### MAIN:
 ####################
@@ -189,7 +209,7 @@ case $CHOICE in
 	;;
 	### END CASE 1 : SETUP
 	02)
-		#TODO: UPDATE
+		update_raspibot
 	;;
 	### END CASE 2 : UPDATE
 	03)
