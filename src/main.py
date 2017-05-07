@@ -49,10 +49,10 @@ def start(bot, update):
 		with open(jsonFile+"data.json", "w") as json_data:
 			json.dump(d, json_data)
 		chatIdActive = update.message.chat_id
-		update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard))
+		update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard, n_cols=2))
 	else:
 		if chatIdActive == update.message.chat_id:
-			update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard))
+			update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard, n_cols=2))
 		else:	
 			update.message.reply_text(text="YOU SHALL NOT PASS!")
 
@@ -106,7 +106,8 @@ def button(bot, update):
 		return ConversationHandler.END
 
 	if query.data.startswith("alias"):
-		query.message.reply_text(text="It works")
+		aliasOutput=alias.runAlias(query.data[5:])
+		query.message.reply_text(text=aliasOutput)
 		return ConversationHandler.END
 
 
