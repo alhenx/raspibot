@@ -72,7 +72,7 @@ def menuAliases(bot, update):
 	aliasesList=alias.getList()
 	listButtonAliases = []
 	for i in range(len(aliasesList)):
-		listButtonAliases.append(InlineKeyboardButton(text="<code>"+aliasesList[i]+"</code>", parse_mode="HTML", callback_data="alias"+str(aliasesList[i])))
+		listButtonAliases.append(InlineKeyboardButton(text=aliasesList[i] callback_data="alias"+str(aliasesList[i])))
 	update.message.reply_text(text="Choose one alias to run", reply_markup=InlineKeyboardMarkup(build_menu(listButtonAliases, n_cols=1)))
 
 def button(bot, update):
