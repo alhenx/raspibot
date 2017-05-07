@@ -89,7 +89,6 @@ setup_raspibot () {
 						sleep 0.4
 						echo $SUDO_PASS | sudo -kS mkdir -p $TORRENTENDPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 30
 						echo $SUDO_PASS | sudo -kS chmod a+wx $TORRENTENDPATH | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 40
-						echo $SUDO_PASS | sudo -kS mkdir -p $INSTALLDIR
 						echo $SUDO_PASS | sudo -kS chmod a+wx $INSTALLDIR| dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 50
 						git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet | dialog --title "Installing RaspiBOT" --gauge "\nCloning from GitHub..." 8 60 80
 
@@ -184,7 +183,8 @@ update_raspibot () {
 	# Customizes data.json with user info
 	cp $BOTPATH_BAK/data.json $DATAPATH | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 75
 	sleep 0.15
-	sudo /bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 95
+	sudo /bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 90
+	sudo rm -rf $BOTPATH_BAK >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 95
 	sleep 0.15
 }
 
