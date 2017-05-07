@@ -107,9 +107,8 @@ def button(bot, update):
 
 	if query.data.startswith("alias"):
 		aliasOutput=alias.runAlias(query.data[5:])
-		query.message.reply_text(text=aliasOutput)
+		query.message.reply_text(text="Command output:\n"+aliasOutput)
 		return ConversationHandler.END
-
 
 def response(bot, update):
 	if chatIdActive != update.message.chat_id: return 0
