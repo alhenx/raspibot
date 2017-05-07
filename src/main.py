@@ -106,8 +106,10 @@ def button(bot, update):
 		return ConversationHandler.END
 
 	if query.data.startswith("alias"):
+		query.message.reply_text(text="Alias "+query.data[5:]+" executed.")
 		aliasOutput=alias.runAlias(query.data[5:])
-		query.message.reply_text(text="Command output:\n"+aliasOutput)
+		if aliasOutput: # Check if output isn't empty
+			query.message.edit_text(text="Alias "+query.data[5:]+" executed.\nCommand output:\n"+aliasOutput)
 		return ConversationHandler.END
 
 def response(bot, update):
