@@ -70,7 +70,7 @@ def menuTorrents(bot, update):
 def menuAliases(bot, update):
 	if chatIdActive != update.message.chat_id: return 0
 	aliasesList=alias.getList()
-		listButtonAliases
+		listButtonAliases = []
 		for i in range(len(aliasesList)):
 			listButtonAliases.append(InlineKeyboardButton(text=aliasesList[i], callback_data="alias"+str(aliasesList[i])))
 		update.message.reply_text(text="Choose one alias to run", reply_markup=InlineKeyboardMarkup(build_menu(listButtonAliases, n_cols=1)))
