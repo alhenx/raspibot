@@ -40,7 +40,7 @@ def build_menu(buttons, n_cols: int):
 	return menu
 
 def start(bot, update):
-	menuKeyboard = [["STATS"],["ALIASES"],["TORRENTS"]]
+	menuKeyboard = [[["STATS"],["ALIASES"]],["TORRENTS"]]
 	global chatIdActive
 	if chatIdActive == "none":
 		with open(jsonFile+"data.json") as json_data:
@@ -49,10 +49,10 @@ def start(bot, update):
 		with open(jsonFile+"data.json", "w") as json_data:
 			json.dump(d, json_data)
 		chatIdActive = update.message.chat_id
-		update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard, n_cols=2))
+		update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard))
 	else:
 		if chatIdActive == update.message.chat_id:
-			update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard, n_cols=2))
+			update.message.reply_text(text="Hi, I'm your bitch", reply_markup=ReplyKeyboardMarkup(menuKeyboard))
 		else:	
 			update.message.reply_text(text="YOU SHALL NOT PASS!")
 
@@ -72,7 +72,7 @@ def menuAliases(bot, update):
 	aliasesList=alias.getList()
 	listButtonAliases = []
 	for i in range(len(aliasesList)):
-		listButtonAliases.append(InlineKeyboardButton(text=aliasesList[i], callback_data="alias"+str(aliasesList[i])))
+		listButtonAliases.append(InlineKeyboardButton(text="<code>"+aliasesList[i]+"</code>", parse_mode="HTML", callback_data="alias"+str(aliasesList[i])))
 	update.message.reply_text(text="Choose one alias to run", reply_markup=InlineKeyboardMarkup(build_menu(listButtonAliases, n_cols=1)))
 
 def button(bot, update):
