@@ -40,7 +40,7 @@ def build_menu(buttons, n_cols: int):
 	return menu
 
 def start(bot, update):
-	menuKeyboard = [[["STATS"],["ALIASES"]],["TORRENTS"]]
+	menuKeyboard = [["STATS", "ALIASES"],["TORRENTS"]]
 	global chatIdActive
 	if chatIdActive == "none":
 		with open(jsonFile+"data.json") as json_data:
