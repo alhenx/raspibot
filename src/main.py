@@ -7,7 +7,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 import logging
 import json
 import os
-from lib import stats, torrent
+from lib import stats, torrent, alias
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -40,7 +40,7 @@ def build_menu(buttons, n_cols: int):
 	return menu
 
 def start(bot, update):
-	menuKeyboard = [["STATS"],["TORRENTS"]]
+	menuKeyboard = [["STATS"],["ALIASES"],["TORRENTS"]]
 	global chatIdActive
 	if chatIdActive == "none":
 		with open(jsonFile+"data.json") as json_data:
@@ -66,6 +66,14 @@ def getStats(bot, update):
 def menuTorrents(bot, update):
 	if chatIdActive != update.message.chat_id: return 0
 	update.message.reply_text(text="Choose one option", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
+
+def menuAliases(bot, update):
+	if chatIdActive != update.message.chat_id: return 0
+	aliasesList=alias.getList()
+		listButtonAliases
+		for i in range(len(aliasesList)):
+			listButtonAliases.append(InlineKeyboardButton(text=aliasesList[i], callback_data="alias"+str(aliasesList[i])))
+		update.message.reply_text(text="Choose one alias to run", reply_markup=InlineKeyboardMarkup(build_menu(listButtonAliases, n_cols=1)))
 
 def button(bot, update):
 	query = update.callback_query
@@ -97,12 +105,19 @@ def button(bot, update):
 		query.message.edit_text(text="Cancelled", reply_markup=InlineKeyboardMarkup(build_menu(buttonTorrents, n_cols=2)))
 		return ConversationHandler.END
 
+	if query.data.startswith("alias"):
+		query.message.reply_text(text="It works")
+		return ConversationHandler.END
+
+
 def response(bot, update):
 	if chatIdActive != update.message.chat_id: return 0
 	if (update.message.text=="STATS"):
 		getStats(bot,update)
 	if (update.message.text=="TORRENTS"):
 		menuTorrents(bot,update)
+	if (update.message.text=="ALIASES"):
+		menuAliases(bot,update)
 
 def error(bot, update, error):
 	logger.warn('Update "%s" caused error "%s"' % (update, error))
