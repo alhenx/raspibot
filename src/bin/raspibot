@@ -20,7 +20,7 @@ if [ "$1" != "" ]; then
 			python3 /opt/raspibot-setup/raspibot/src/main.py &
 		;;
 		"update")
-			/usr/bin/curl -sL git.io/vSdkW | /bin/bash -s 01
+			/usr/bin/curl -H 'Cache-Control: no-cache' -sL git.io/vSdkW | /bin/bash -s "02"
 		"help")
 			echo "How to use: raspibot [option]"
 			echo "Available options:"
