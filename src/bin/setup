@@ -221,6 +221,7 @@ if [ -z "$1" ]; then # If not, ask for option.
 	"04" "Exit" 3>&2 2>&1 1>&3)
 	exitstatus=$?
 else # Else, param is some option.
+	exitstatus=0
 	CHOICE=$1
 fi
 
