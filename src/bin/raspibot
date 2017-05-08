@@ -25,13 +25,13 @@ if [ "$1" != "" ]; then
 		"help")
 			echo "How to use: raspibot [option]"
 			echo "Available options:"
-			echo -e "\t start - Start RaspiBOT's service."
-			echo -e "\t stop - Stop RaspiBOT's service."
-			echo -e "\t restart - Restart RaspiBOT's service."
-			echo -e "\t status - Show the status of RaspiBOT's service."
-			echo -e "\t exec - RaspiBOT's executable program (Python)."
-			echo -e "\t update - Update RaspiBOT."
-			echo -e "\t help - Show this help."
+			echo "\t start - Start RaspiBOT's service."
+			echo "\t stop - Stop RaspiBOT's service."
+			echo "\t restart - Restart RaspiBOT's service."
+			echo "\t status - Show the status of RaspiBOT's service."
+			echo "\t exec - RaspiBOT's executable program (Python)."
+			echo "\t update - Update RaspiBOT."
+			echo "\t help - Show this help."
 		;;
 		*)
 			echo "Invalid option. Use help to see the available options."
