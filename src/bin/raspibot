@@ -29,6 +29,7 @@ if [ "$1" != "" ]; then
 			echo -e "\t restart - Restart RaspiBOT's service."
 			echo -e "\t status - Show the status of RaspiBOT's service."
 			echo -e "\t exec - RaspiBOT's executable program (Python)."
+			echo -e "\t update - Update RaspiBOT."
 			echo -e "\t help - Show this help."
 		;;
 		*)
