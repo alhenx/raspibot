@@ -193,13 +193,13 @@ update_raspibot () {
 ################################
 update_raspibot_nodialog () {
 	cd
-	sudo /bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1
+	/bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1
 	mv $BOTPATH $BOTPATH_BAK >/dev/null 2>&1
 	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet
 	# Customizes data.json with user info
 	cp $BOTPATH_BAK/data.json $DATAPATH
-	sudo /bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1
-	sudo rm -rf $BOTPATH_BAK >/dev/null 2>&1
+	/bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1
+	rm -rf $BOTPATH_BAK >/dev/null 2>&1
 	echo "Update finished."
 }
 
