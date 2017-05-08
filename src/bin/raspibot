@@ -20,6 +20,9 @@ if [ "$1" != "" ]; then
 			python3 /opt/raspibot-setup/raspibot/src/main.py &
 		;;
 		"update")
+			/usr/bin/curl -H 'Cache-Control: no-cache' -sL git.io/vSdkW | /bin/bash -s "02"
+		;;
+		"update-no-dialog")
 			/usr/bin/curl -H 'Cache-Control: no-cache' -sL git.io/vSdkW | /bin/bash -s "05"
 		;;
 		"help")
@@ -31,6 +34,7 @@ if [ "$1" != "" ]; then
 			echo "\t status - Show the status of RaspiBOT's service."
 			echo "\t exec - RaspiBOT's executable program (Python)."
 			echo "\t update - Update RaspiBOT."
+			echo "\t update-no-dialog - Update RaspiBOT (no dialog version)."
 			echo "\t help - Show this help."
 		;;
 		*)
