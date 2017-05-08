@@ -21,6 +21,7 @@ if [ "$1" != "" ]; then
 		;;
 		"update")
 			/usr/bin/curl -H 'Cache-Control: no-cache' -sL git.io/vSdkW | /bin/bash -s "02"
+		;;
 		"help")
 			echo "How to use: raspibot [option]"
 			echo "Available options:"
