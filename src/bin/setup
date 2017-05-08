@@ -210,10 +210,10 @@ update_raspibot_nodialog () {
 
 echo "Checking up system for 'dialog' package..."
 sleep 0.5
-chk_install_pkg dialog
 
 # Check if some param was given in command line.
 if [ -z "$1" ]; then # If not, ask for option.
+	chk_install_pkg dialog
 	CHOICE=$(dialog --title "RaspiBOT setup" --menu "Setup options:" 13 60 4 \
 	"01" "Setup RaspiBOT on your system" \
 	"02" "Update RaspiBOT" \
