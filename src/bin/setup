@@ -7,7 +7,7 @@
 
 # Program's vars
 INSTALLDIR="/opt/raspibot-setup"
-BOTPATH="$INSTALLDIR/raspibot"
+BOTPATH="$INSTALLDIR/raspibot"Ç
 BOTPATH_BAK="$BOTPATH-bak"
 BOTPATHBIN="$BOTPATH/src/bin"
 DATAPATH="$BOTPATH/data.json"
@@ -39,7 +39,7 @@ chk_pkg () {
 #########################################################
 chk_install_pkg () {
 	if [ $(dpkg-query -W -f='${Status}' $1 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-		sudo apt-get install $1 -y 
+		sudo apt-get install $1 -y >/dev/null 2>&1
 	fi
 }
 
@@ -175,16 +175,18 @@ update_raspibot () {
 	cd
 	sleep 0.5 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 5
 	sleep 0.15
-	sudo /bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 15
-	mv $BOTPATH $BOTPATH_BAK | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 35
+	/bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 15
+	mv $BOTPATH $BOTPATH_BAK >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 35
 	sleep 0.15
 	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 60
 	sleep 0.15
 	# Customizes data.json with user info
-	cp $BOTPATH_BAK/data.json $DATAPATH | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 75
+	cp $BOTPATH_BAK/data.json $DATAPATH >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 75
 	sleep 0.15
-	sudo /bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 90
-	sudo rm -rf $BOTPATH_BAK >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 95
+	chmod a+rx -R $BOTPATHBIN >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 80
+	sleep 0.15
+	/bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 90
+	rm -rf $BOTPATH_BAK >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 95
 	sleep 0.15
 	dialog --title "Update RaspiBOT" --msgbox "\n Update finished." 8 60
 }
@@ -197,7 +199,8 @@ update_raspibot_nodialog () {
 	mv $BOTPATH $BOTPATH_BAK >/dev/null 2>&1
 	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet
 	# Customizes data.json with user info
-	cp $BOTPATH_BAK/data.json $DATAPATH
+	cp $BOTPATH_BAK/data.json $DATAPATH >/dev/null 2>&1
+	chmod a+rx -R $BOTPATHBIN >/dev/null 2>&1
 	/bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1
 	rm -rf $BOTPATH_BAK >/dev/null 2>&1
 	echo "Update finished."
@@ -208,12 +211,10 @@ update_raspibot_nodialog () {
 ### MAIN:
 ####################
 
-echo "Checking up system for 'dialog' package..."
-sleep 0.5
+chk_install_pkg dialog
 
 # Check if some param was given in command line.
 if [ -z "$1" ]; then # If not, ask for option.
-	chk_install_pkg dialog
 	CHOICE=$(dialog --title "RaspiBOT setup" --menu "Setup options:" 13 60 4 \
 	"01" "Setup RaspiBOT on your system" \
 	"02" "Update RaspiBOT" \
