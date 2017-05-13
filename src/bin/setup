@@ -170,40 +170,28 @@ remove_raspibot () {
 }
 
 # RaspiBOT's update function.
+# var $1: tells to use dialog output or not
 ################################
 update_raspibot () {
 	cd
-	sleep 0.5 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 5
-	sleep 0.15
-	/bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 15
-	mv $BOTPATH $BOTPATH_BAK >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 35
-	sleep 0.15
-	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 60
-	sleep 0.15
-	# Customizes data.json with user info
-	cp $BOTPATH_BAK/data.json $DATAPATH >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 75
-	sleep 0.15
-	chmod a+rx -R $BOTPATHBIN >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 80
-	sleep 0.15
-	/bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 90
-	rm -rf $BOTPATH_BAK >/dev/null 2>&1 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 95
-	sleep 0.15
-	dialog --title "Update RaspiBOT" --msgbox "\n Update finished." 8 60
-}
-
-# RaspiBOT's update function without dialog
-################################
-update_raspibot_nodialog () {
-	cd
+	[[ $1 != "no_dialog" ]] && sleep 0.5 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 5
 	/bin/systemctl stop $RASPIBOT_SERVICE >/dev/null 2>&1
-	mv $BOTPATH $BOTPATH_BAK >/dev/null 2>&1
-	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet
+	[[ $1 != "no_dialog" ]] && sleep 0.15 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 15
+	mv $BOTPATH $BOTPATH_BAK >/dev/null 2>&1 
+	[[ $1 != "no_dialog" ]] && sleep 0.15 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 35
+	git clone https://github.com/alhenx/raspibot.git $BOTPATH --quiet 
+	[[ $1 != "no_dialog" ]] && sleep 0.15 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 60
 	# Customizes data.json with user info
-	cp $BOTPATH_BAK/data.json $DATAPATH >/dev/null 2>&1
-	chmod a+rx -R $BOTPATHBIN >/dev/null 2>&1
-	/bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1
-	rm -rf $BOTPATH_BAK >/dev/null 2>&1
-	echo "Update finished."
+	cp $BOTPATH_BAK/data.json $DATAPATH >/dev/null 2>&1 
+	[[ $1 != "no_dialog" ]] && sleep 0.15 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 75
+	chmod a+rx -R $BOTPATHBIN >/dev/null 2>&1 
+	[[ $1 != "no_dialog" ]] && sleep 0.15 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 80
+	/bin/systemctl start $RASPIBOT_SERVICE >/dev/null 2>&1 
+	[[ $1 != "no_dialog" ]] && sleep 0.15 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 90
+	rm -rf $BOTPATH_BAK >/dev/null 2>&1 
+	[[ $1 != "no_dialog" ]] && sleep 0.15 | dialog --title "Update RaspiBOT" --gauge "\n Updating RaspiBOT..." 8 60 95
+	[[ $1 != "no_dialog" ]] && sleep 0.15 | dialog --title "Update RaspiBOT" --msgbox "\n Update finished." 8 60
+	[[ $1 = "no_dialog" ]] && echo "Update finished."
 }
 
 
@@ -244,7 +232,7 @@ case $CHOICE in
 		exit
 	;;
 	05)
-		update_raspibot_nodialog
+		update_raspibot "no_dialog"
 	;;
 	### END CASE 5 : UPDATE RASPIBOT WITHOUT DIALOG (NOT SELECTABLE)
 	*)
