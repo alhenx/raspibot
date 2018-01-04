@@ -7,7 +7,7 @@
 
 # Program's vars
 INSTALLDIR="/opt/raspibot-setup"
-BOTPATH="$INSTALLDIR/raspibot"Ç
+BOTPATH="$INSTALLDIR/raspibot"
 BOTPATH_BAK="$BOTPATH-bak"
 BOTPATHBIN="$BOTPATH/src/bin"
 DATAPATH="$BOTPATH/data.json"
